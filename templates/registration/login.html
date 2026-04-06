@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Connexion{% endblock %}
+
+{% block content %}
+<div class="login-wrapper">
+    <div class="login-card">
+
+        <h1>Connexion</h1>
+        <p class="subtitle">Accédez à votre espace</p>
+
+        {% if messages %}
+        {% for message in messages %}
+        <div class="error-message">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_username">Nom d'utilisateur</label>
+                <input type="email" name="email" id="id_email" required>
+            </div>
+            <div class="form-group">
+                <label for="id_password">Mot de passe</label>
+                <input type="password" name="password" id="id_password" required>
+            </div>
+            <button type="submit" class="btn-primary">Se connecter</button>
+        </form>
+
+    </div>
+</div>
+{% endblock %}
