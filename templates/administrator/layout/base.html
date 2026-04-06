@@ -1,0 +1,101 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Target Optimizer{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+    <div class="app-layout">
+
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <span class="brand-name">Target Optimizer</span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <a href="" class="nav-item {% block nav_dashboard %}{% endblock %}">
+                        <svg class="nav-icon" viewBox="0 0 16 16" fill="none">
+                            <rect x="1" y="1" width="6" height="6" rx="1" fill="currentColor" />
+                            <rect x="9" y="1" width="6" height="6" rx="1" fill="currentColor" opacity=".5" />
+                            <rect x="1" y="9" width="6" height="6" rx="1" fill="currentColor" opacity=".5" />
+                            <rect x="9" y="9" width="6" height="6" rx="1" fill="currentColor" opacity=".5" />
+                        </svg>
+                        Tableau de bord
+                    </a>
+                    <a href="" class="nav-item {% block nav_targets %}{% endblock %}">
+                        <svg class="nav-icon" viewBox="0 0 16 16" fill="none">
+                            <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5" />
+                            <circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.5" />
+                            <circle cx="8" cy="8" r="1" fill="currentColor" />
+                        </svg>
+                        Optimisation de Trajets
+                    </a>
+                    <a href="" class="nav-item {% block nav_users %}{% endblock %}">
+                        <svg class="nav-icon" viewBox="0 0 16 16" fill="none">
+                            <circle cx="6" cy="5" r="2.5" stroke="currentColor" stroke-width="1.5" />
+                            <path d="M1 14c0-2.761 2.239-5 5-5" stroke="currentColor" stroke-width="1.5"
+                                stroke-linecap="round" />
+                            <circle cx="11" cy="5" r="2.5" stroke="currentColor" stroke-width="1.5" />
+                            <path d="M15 14c0-2.761-2.239-5-5-5" stroke="currentColor" stroke-width="1.5"
+                                stroke-linecap="round" />
+                        </svg>
+                        Gestion Utilisateurs
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">
+                        {{ request.session.user_name|default:"U"|first|upper }}
+                    </div>
+
+                    <div class="user-meta">
+                        <span class="user-name">
+                            {{ request.session.user_name }}
+                        </span>
+
+                        <span class="user-role">
+                            {{ request.session.user_role }}
+                        </span>
+                    </div>
+                </div>
+                <a href="{% url 'logout' %}" class="logout-btn" title="Se déconnecter">
+                    <svg viewBox="0 0 16 16" fill="none" width="16" height="16">
+                        <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3M10 11l3-3-3-3M13 8H6" stroke="currentColor"
+                            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </a>
+            </div>
+        </aside>
+
+        <div class="main-wrapper">
+
+            <header class="topbar">
+                <h1 class="topbar-title">{% block page_title %}{% endblock %}</h1>
+                <div class="topbar-actions">
+                    {% block topbar_actions %}{% endblock %}
+                </div>
+            </header>
+
+            <main class="main-content">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+
+    </div>
+
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+
+</body>
+
+</html>

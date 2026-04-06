@@ -4,4 +4,4 @@ from django.shortcuts import render
 
 @user_required
 def user_dashboard(request):
-    return render(request, 'utilisateur/dashboard.html')
+    return render(request, 'utilisateur/pages/dashboard.html')
