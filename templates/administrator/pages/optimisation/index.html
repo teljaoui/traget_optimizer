@@ -6,36 +6,62 @@
 
 {% block content %}
 
-<div class="container">
-    <div class="content-top">
-        <a href="" class="button">Ajouter une optimisation</a>
+<div class="main-content">
+
+  <div class="gu-header">
+    <a href="{% url 'ajouter_optimisation' %}" class="gu-btn-new">
+      <i class="fas fa-plus"></i> Ajouter une optimisation
+    </a>
+  </div>
+
+  <div class="gu-card">
+
+    <div class="gu-table-wrapper">
+      <table class="gu-table">
+
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Active</th>
+            <th class="th-center">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          <tr>
+            <td>
+              <div class="gu-user-info">
+                <span class="gu-user-name">Optimisation 1</span>
+              </div>
+            </td>
+
+            <td>
+              <span class="gu-status gu-status--active">
+                <span class="gu-status-dot"></span>
+                Oui
+              </span>
+            </td>
+
+            <td class="td-center">
+              <div class="gu-actions">
+                <a href="#" class="btn gu-action-edit">
+                  <i class="fas fa-pen"></i>
+                </a>
+                <a href="#" class="btn gu-action-delete">
+                  <i class="fas fa-trash"></i>
+                </a>
+              </div>
+            </td>
+          </tr>
+
+        </tbody>
+
+      </table>
     </div>
-    <div class="content">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Nom</th>
-                    <th>Active</th>
-                    <th style="text-align: end;">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>
-                        <h4>Optimisation 1</h4>
-                    </td>
-                    <td>
-                        <span class="status visited">
-                            Oui
-                        </span>
-                    </td>
-                    <td class="actions">
-                        <a href="#" class="btn-edit"><i class="fa-solid fa-pen"></i> </a>
-                        <a href="#" class="btn-delete"> <i class="fa-solid fa-trash"></i></a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+
+  </div>
+
 </div>
+
 {% endblock %}

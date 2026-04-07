@@ -1,0 +1,76 @@
+{% extends "administrator/layout/base.html" %}
+{% block title %}Gestion Utilisateurs — Target Optimizer{% endblock %}
+{% block page_title %}Gestion des Utilisateurs{% endblock %}
+{% block nav_users %}active{% endblock %}
+
+{% block content %}
+<div class="main-content">
+
+  <div class="gu-header">
+    <a href="{% url 'user_add' %}" class="gu-btn-new">
+      <i class="fas fa-plus"></i> Nouvel Utilisateur
+    </a>
+  </div>
+
+  <div class="gu-card">
+
+    <div class="gu-table-wrapper">
+      <table class="gu-table">
+        <thead>
+          <tr>
+            <th>Utilisateur</th>
+            <th>Rôle</th>
+            <th>Téléphone</th>
+            <th>Statut</th>
+            <th class="th-center">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for user in users %}
+          <tr>
+            <td>
+                <div class="gu-user-info">
+                  <span class="gu-user-name">{{ user.first_name }} {{ user.last_name }}</span>
+                  <span class="gu-user-email">{{ user.email }}</span>
+              </div>
+            </td>
+
+            <td>
+              <span class="gu-badge {% if user.role == 'ADMIN' %}gu-badge-admin{% else %}gu-badge-user{% endif %}">
+                {{ user.role }}
+              </span>
+            </td>
+
+            <td class="gu-phone">{{ user.telephone|default:"—" }}</td>
+
+            <td>
+              <span class="gu-status {% if user.is_active %}gu-status--active{% else %}gu-status--inactive{% endif %}">
+                <span class="gu-status-dot"></span>
+                {% if user.is_active %}Actif{% else %}Inactif{% endif %}
+              </span>
+            </td>
+
+            <td class="td-center">
+              <div class="gu-actions">
+                <a href="#" class="btn gu-action-edit"><i class="fas fa-pen"></i></a>
+                <a href="#" class="btn gu-action-delete"><i class="fas fa-trash"></i></a>
+              </div>
+            </td>
+          </tr>
+
+          {% empty %}
+          <tr>
+            <td colspan="7" class="gu-empty">Aucun utilisateur trouvé</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+
+      </table>
+    </div>
+  </div>
+
+</div>
+
+
+{% endblock %}

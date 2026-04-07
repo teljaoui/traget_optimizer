@@ -93,10 +93,24 @@ body {
     transition: background-color 0.2s;
 
 }
+.btn-submit {
+    padding: 0.75rem;
+    background-color: #6366f1;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: background-color 0.2s;
+    float: right;
+}
 
 
 
-.btn-primary:hover {
+.btn-primary:hover,
+.btn-submit:hover {
     background-color: #4f46e5;
 }
 
@@ -309,6 +323,7 @@ body {
 .dashboard-container {
     display: flex;
     width: 95%;
+    height: 85vh !important;
     margin-inline: auto;
     gap: 20px;
 
@@ -347,7 +362,6 @@ body {
 
 .right-content {
     width: 320px;
-    height: 600px;
     background: white;
     border-left: 1px solid #e2e8f0;
     padding: 1rem;
@@ -551,71 +565,306 @@ body {
 }
 
 
-.content {
-    margin-block: 40px;
-    padding: 20px;
+
+.main-content{
+    display: flex;
+    flex-direction: column;
+    padding-inline: 30px ;
+}
+/* En-tête page */
+.gu-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 1.5rem;
+}
+
+.gu-title {
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.gu-btn-new {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.6rem 1.2rem;
+    background: #4f46e5;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(79,70,229,0.25);
+    text-decoration: none;
+}
+
+.gu-btn-new:hover {
+    background: #4338ca;
+    box-shadow: 0 4px 14px rgba(79,70,229,0.35);
+}
+
+/* Carte conteneur */
+.gu-card {
     background: #ffffff;
     border-radius: 8px;
+    padding: 10px;
+    border: 1px solid #e8edf4;
+    box-shadow: 0 1px 6px rgba(63, 63, 63, 0.018);
+    overflow: hidden;
 }
 
-.table {
+
+/* Tableau */
+.gu-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 10px;
-    font-family: sans-serif;
-    color: #334155;
+    font-size: 0.875rem;
 }
 
-.table thead tr {
-    background-color: #f8fafc;
-    color: #64748b;
+.gu-table thead tr {
+    background: #f8fafc;
+    border-bottom: 1px solid #e8edf4;
+}
+
+.gu-table thead th {
+    padding: 0.75rem 1.2rem;
     text-align: left;
-    font-size: 0.85rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #64748b;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
 }
 
-.table th, .table td {
-    padding: 12px 15px;
+.gu-table thead th.th-center {
+    text-align: center;
+}
+
+.gu-table tbody tr {
     border-bottom: 1px solid #f1f5f9;
+    transition: background 0.15s;
 }
 
- .table tbody tr:hover {
-    background-color: #f1f5f9;
-    transition: background 0.2s ease;
+.gu-table tbody tr:last-child {
+    border-bottom: none;
 }
 
-.actions {
+.gu-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.gu-table tbody td {
+    padding: 0.85rem 1.2rem;
+    vertical-align: middle;
+    color: #374151;
+}
+
+.gu-table tbody td.td-center {
+    text-align: center;
+}
+
+
+.gu-user-info {
     display: flex;
-    gap: 8px;
-    justify-content: flex-end;
+    flex-direction: column;
+    gap: 1px;
 }
 
-.btn:hover {
+.gu-user-name {
+    font-weight: 600;
+    color: #0f172a;
+    font-size: 0.875rem;
+    line-height: 1.2;
+}
+
+.gu-user-email {
+    font-size: 0.775rem;
+    color: #94a3b8;
+}
+
+/* Badge Rôle */
+.gu-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.gu-badge-admin {
+    background: #312e81;
+    color: #fff;
+}
+
+.gu-badge-user {
+    background: #10b981;
+    color: #fff;
+}
+
+/* Zone affectée */
+.gu-zone {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+}
+
+.gu-zone-icon {
+    margin-top: 2px;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+
+.gu-zone-icon--admin { color: #6366f1; }
+.gu-zone-icon--user  { color: #10b981; }
+
+.gu-zone-name {
+    display: block;
+    font-weight: 500;
+    color: #1e293b;
+    font-size: 0.855rem;
+    line-height: 1.2;
+}
+
+.gu-zone-country {
+    font-size: 0.75rem;
+    color: #94a3b8;
+}
+
+/* Téléphone / Dernière connexion */
+.gu-phone,
+.gu-last-login {
+    white-space: nowrap;
+    color: #475569;
+    font-size: 0.855rem;
+}
+
+/* Statut pill */
+.gu-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 11px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.gu-status--active {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.gu-status--inactive {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.gu-status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.gu-status--active   .gu-status-dot { background: #10b981; }
+.gu-status--inactive .gu-status-dot { background: #f59e0b; }
+
+/* Actions */
+.gu-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: center;
+}
+
+.gu-actions .btn  {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 7px;
+    font-size: 0.78rem;
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+}
+.gu-action-edit {
+    color: #4f46e5;
+}
+.gu-action-delete {
+    color: #b91c1c;
+}
+.gu-action-edit:hover,
+.gu-action-delete:hover {
     opacity: 0.8;
 }
 
-.btn-edit {
-     text-decoration: none;
-    padding: 6px 12px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    font-weight: 500;
-    transition: opacity 0.2s;
-    color: #3b82f6; 
+
+.gu-form {
+    width: 100%;
+}
+.form-card{
+    padding: 20px;
 }
 
-.btn-delete {
-     text-decoration: none;
-    padding: 6px 12px;
-    border-radius: 4px;
-    font-size: 0.8rem;
+.gu-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+/* Inputs identiques index */
+.form-group input,
+.gu-input,
+.form-group select {
+    width: 100%;
+    padding: 0.65rem 0.9rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+    background: white;
+}
+
+.form-group input:focus,
+.gu-input:focus,
+.form-group select:focus {
+    border-color: #6366f1;
+}
+
+/* Labels */
+.form-group label {
+    display: block;
+    font-size: 0.85rem;
     font-weight: 500;
-    transition: opacity 0.2s;
-    color: #ef4444; 
+    margin-bottom: 0.4rem;
+    color: #374151;
+}
+
+/* Actions bouton à droite */
+.gu-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 25px;
 }
 
 
+/* Ligne vide */
+.gu-empty {
+    text-align: center;
+    padding: 2.5rem;
+    color: #94a3b8;
+    font-size: 0.9rem;
+}
 
 #map {
     width: 100%;

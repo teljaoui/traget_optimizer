@@ -1,0 +1,73 @@
+{% extends "administrator/layout/base.html" %}
+
+{% block title %}Ajouter Utilisateur{% endblock %}
+{% block page_title %}Ajouter Utilisateur{% endblock %}
+{% block nav_users %}active{% endblock %}
+
+{% block content %}
+
+<div class="main-content">
+
+    <div class="gu-card">
+         <div class="form-card">
+
+        <div class="header">
+            <h2>Créer un utilisateur</h2>
+            <p class="subtitle">Remplir les informations ci-dessous</p>
+        </div>
+
+        <form method="POST" class="gu-form">
+            {% csrf_token %}
+
+            <div class="gu-form-grid">
+
+                <div class="form-group">
+                    <label>Prénom</label>
+                    <input type="text" name="first_name" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Nom</label>
+                    <input type="text" name="last_name" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Téléphone</label>
+                    <input type="text" name="telephone">
+                </div>
+
+                <div class="form-group">
+                    <label>Rôle</label>
+                    <select name="role" class="gu-input" required>
+                        <option value="ADMIN">Admin</option>
+                        <option value="USER">User</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Mot de passe</label>
+                    <input type="password" name="password" required>
+                </div>
+
+            </div>
+
+            <div class="gu-form-actions">
+                <button type="submit" class="btn-submit">
+                    Créer utilisateur
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+    </div>
+   
+
+</div>
+
+{% endblock %}
