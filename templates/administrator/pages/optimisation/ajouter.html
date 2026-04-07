@@ -1,0 +1,52 @@
+{% extends "administrator/layout/base.html" %}
+
+{% block title %}Ajouter Optimisation{% endblock %}
+{% block page_title %}Ajouter Optimisation{% endblock %}
+{% block nav_optimisations %}active{% endblock %}
+
+{% block content %}
+
+<div class="main-content">
+
+    <div class="gu-card">
+        <div class="form-card">
+
+            <div class="header">
+                <h2>Créer une optimisation</h2>
+                <p class="subtitle">Remplir les informations ci-dessous</p>
+            </div>
+
+            <form method="POST" class="gu-form">
+                {% csrf_token %}
+
+                <div class="gu-form-grid">
+
+                    <div class="form-group">
+                        <label>Nom de l'optimisation</label>
+                        <input type="text" name="nom" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Statut</label>
+                        <select name="is_active" class="gu-input">
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="gu-form-actions">
+                    <button type="submit" class="btn-submit">
+                        Créer optimisation
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

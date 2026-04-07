@@ -9,7 +9,7 @@
 <div class="main-content">
 
   <div class="gu-header">
-    <a href="{% url 'ajouter_optimisation' %}" class="gu-btn-new">
+    <a href="{% url 'optimisation_add' %}" class="gu-btn-new">
       <i class="fas fa-plus"></i> Ajouter une optimisation
     </a>
   </div>
@@ -29,31 +29,51 @@
 
         <tbody>
 
+          {% for opt in optimisations %}
           <tr>
             <td>
               <div class="gu-user-info">
-                <span class="gu-user-name">Optimisation 1</span>
+                <span class="gu-user-name">{{ opt.nom }}</span>
               </div>
             </td>
 
             <td>
-              <span class="gu-status gu-status--active">
-                <span class="gu-status-dot"></span>
-                Oui
-              </span>
+              {% if opt.is_active %}
+                <span class="gu-status gu-status--active">
+                  
+                  Oui
+                </span>
+              {% else %}
+                <span class="gu-status gu-status--inactive">
+                  
+                  Non
+                </span>
+              {% endif %}
             </td>
 
             <td class="td-center">
               <div class="gu-actions">
-                <a href="#" class="btn gu-action-edit">
+                
+                <a href="{% url 'optimisation_update' opt.id %}" class="btn gu-action-edit">
                   <i class="fas fa-pen"></i>
                 </a>
-                <a href="#" class="btn gu-action-delete">
+
+                <a href="{% url 'optimisation_delete' opt.id %}" class="btn gu-action-delete"
+                   onclick="return confirm('Supprimer cette optimisation ?');">
                   <i class="fas fa-trash"></i>
                 </a>
+
               </div>
             </td>
           </tr>
+
+          {% empty %}
+          <tr>
+            <td colspan="3" style="text-align:center;">
+              Aucune optimisation trouvée
+            </td>
+          </tr>
+          {% endfor %}
 
         </tbody>
 

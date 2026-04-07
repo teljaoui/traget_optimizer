@@ -1,0 +1,52 @@
+{% extends "administrator/layout/base.html" %}
+
+{% block title %}Modifier Optimisation{% endblock %}
+{% block page_title %}Modifier Optimisation{% endblock %}
+{% block nav_optimisations %}active{% endblock %}
+
+{% block content %}
+
+<div class="main-content">
+
+    <div class="gu-card">
+        <div class="form-card">
+
+            <div class="header">
+                <h2>Modifier l'optimisation</h2>
+                <p class="subtitle">Mettre à jour les informations</p>
+            </div>
+
+            <form method="POST" class="gu-form">
+                {% csrf_token %}
+
+                <div class="gu-form-grid">
+
+                    <div class="form-group">
+                        <label>Nom de l'optimisation</label>
+                        <input type="text" name="nom" value="{{ optimisation.nom }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Statut</label>
+                        <select name="is_active" class="gu-input">
+                            <option value="1" {% if optimisation.is_active %}selected{% endif %}>Active</option>
+                            <option value="0" {% if not optimisation.is_active %}selected{% endif %}>Inactive</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="gu-form-actions">
+                    <button type="submit" class="btn-submit">
+                        Modifier optimisation
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

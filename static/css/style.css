@@ -401,7 +401,7 @@ body {
 .zone-item {
     background: #fff;
     border: 1px solid #e9ecef;
-    border-radius: 12px;
+    border-radius: 5px;
     overflow: hidden;
     transition: border-color 0.2s, box-shadow 0.2s;
     margin-bottom: 0;
@@ -409,7 +409,6 @@ body {
 
 .zone-item.active {
     border-color: #c7d7f5;
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.08);
 }
 
 .zone-header {
@@ -544,25 +543,6 @@ body {
 }
 
 
-
-.status {
-    font-size: 11px;
-    font-weight: 500;
-    padding: 3px 9px;
-    border-radius: 20px;
-    display: inline-block;
-    
-}
-
-.visited {
-    background: #dcfce7;
-    color: #15803d;
-}
-
-.not-visited {
-    background: #fee2e2;
-    color: #b91c1c;
-}
 
 
 
@@ -717,12 +697,10 @@ body {
 
 .gu-zone-icon {
     margin-top: 2px;
-    font-size: 0.85rem;
+    font-size: 0.;
     flex-shrink: 0;
 }
 
-.gu-zone-icon--admin { color: #6366f1; }
-.gu-zone-icon--user  { color: #10b981; }
 
 .gu-zone-name {
     display: block;
@@ -750,33 +728,37 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 4px 11px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
+    padding: 3px 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 9999px;
+    border: 1px solid transparent;
     white-space: nowrap;
 }
 
 .gu-status--active {
-    background: #d1fae5;
+    background: #ecfdf5;
     color: #065f46;
+    border-color: #a7f3d0;
 }
 
 .gu-status--inactive {
-    background: #fef3c7;
-    color: #92400e;
+    background: #fff1f2;
+    color: #be123c;
+    border-color: #fecdd3;
 }
 
 .gu-status-dot {
-    width: 7px;
-    height: 7px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
     flex-shrink: 0;
 }
 
 .gu-status--active   .gu-status-dot { background: #10b981; }
-.gu-status--inactive .gu-status-dot { background: #f59e0b; }
 
+
+.gu-status--inactive .gu-status-dot { background: #e11d48; }
 /* Actions */
 .gu-actions {
     display: inline-flex;
@@ -865,6 +847,7 @@ body {
     color: #94a3b8;
     font-size: 0.9rem;
 }
+
 
 #map {
     width: 100%;

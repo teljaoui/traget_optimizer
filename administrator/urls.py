@@ -10,9 +10,11 @@ urlpatterns = [
     path('utilisateurs/modifier/<int:id>/', views.user_update, name='user_update'),
 
     # OPTIMISATION
-    path('optimisation/index/', views.optimisation_index, name='liste_optimisation'),
-    path('optimisation/ajouter/', views.optimisation_add, name='ajouter_optimisation'),
-    path('optimisation/modifier/<int:id>/', views.optimisation_update, name='modifier_optimisation'),
+    path('optimisation/index/', views.optimisation_index, name='optimisation_index'),
+    path('optimisation/ajouter/', views.optimisation_add, name='optimisation_add'),
+    path('optimisation/modifier/<int:id>/', views.optimisation_update, name='optimisation_update'),
+    path('optimisation/delete/<int:id>/', views.optimisation_delete, name='optimisation_delete'),
+
 
     # ZONE
     path('optimisation/zone/index/', views.optimisation_zone, name='zone_optimisation'),
