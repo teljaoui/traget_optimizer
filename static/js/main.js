@@ -11,3 +11,15 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 });
+
+function toggleZone(element) {
+  element.parentElement.classList.toggle('active');
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  const map = L.map('map').setView([33.9716, -6.8498], 13);
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    attribution: '© OpenStreetMap © CARTO'
+  }).addTo(map);
+});

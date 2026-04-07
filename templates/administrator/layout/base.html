@@ -6,6 +6,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Target Optimizer{% endblock %}</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
@@ -21,7 +23,7 @@
 
             <nav class="sidebar-nav">
                 <div class="nav-section">
-                    <a href="" class="nav-item {% block nav_dashboard %}{% endblock %}">
+                    <a href="{% url 'admin_dashboard' %}" class="nav-item {% block nav_dashboard %}{% endblock %}">
                         <svg class="nav-icon" viewBox="0 0 16 16" fill="none">
                             <rect x="1" y="1" width="6" height="6" rx="1" fill="currentColor" />
                             <rect x="9" y="1" width="6" height="6" rx="1" fill="currentColor" opacity=".5" />
@@ -30,7 +32,7 @@
                         </svg>
                         Tableau de bord
                     </a>
-                    <a href="" class="nav-item {% block nav_targets %}{% endblock %}">
+                    <a href="{% url 'liste_optimisation' %}" class="nav-item {% block nav_targets %}{% endblock %}">
                         <svg class="nav-icon" viewBox="0 0 16 16" fill="none">
                             <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5" />
                             <circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.5" />
@@ -93,6 +95,7 @@
 
     </div>
 
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="{% static 'js/main.js' %}"></script>
     {% block extra_js %}{% endblock %}
 
