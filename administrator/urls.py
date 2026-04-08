@@ -8,6 +8,7 @@ urlpatterns = [
     path('utilisateurs/', views.user_index, name='user_index'),
     path('utilisateurs/ajouter/', views.user_add, name='user_add'),
     path('utilisateurs/modifier/<int:id>/', views.user_update, name='user_update'),
+    path('utilisateurs/supprimer/<int:id>/', views.user_delete, name='user_delete'),
 
     # OPTIMISATION
     path('optimisation/index/', views.optimisation_index, name='optimisation_index'),

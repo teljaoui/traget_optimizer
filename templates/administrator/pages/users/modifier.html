@@ -1,0 +1,81 @@
+{% extends "administrator/layout/base.html" %}
+
+{% block title %}Modifier l'Utilisateur — {{ user.first_name }}{% endblock %}
+{% block page_title %}Modifier l'Utilisateur{% endblock %}
+{% block nav_users %}active{% endblock %}
+
+{% block content %}
+
+<div class="constent">
+    <div class="gu-card">
+        <div class="form-card">
+
+            <div class="header">
+                <h2>Modifier le profil</h2>
+                <p class="subtitle">Mettre à jour les informations de <strong>{{ user.email }}</strong></p>
+            </div>
+
+            <form method="POST" action="{% url 'user_update' user.id %}" class="gu-form">
+                {% csrf_token %}
+
+                <div class="gu-form-grid">
+
+                    <div class="form-group">
+                        <label>Prénom</label>
+                        <input type="text" name="first_name" value="{{ user.first_name }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Nom</label>
+                        <input type="text" name="last_name" value="{{ user.last_name }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" name="email" value="{{ user.email }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Téléphone</label>
+                        <input type="text" name="telephone" value="{{ user.telephone|default:'' }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Rôle</label>
+                        <select name="role" class="gu-input" required>
+                            <option value="ADMIN" {% if user.role == 'ADMIN' %}selected{% endif %}>Admin</option>
+                            <option value="USER" {% if user.role == 'USER' %}selected{% endif %}>User</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Mot de passe (Laisser vide pour ne pas modifier)</label>
+                        <input type="password" name="password" placeholder="********">
+                    </div>
+
+                    <div class="form-group" >
+                        <label>Compte actif :</label>
+                        
+                        <input type="checkbox" 
+                               name="is_active" 
+                               {% if user.is_active %}checked{% endif %}
+                               style="width: 20px; height: 20px; cursor: pointer; accent-color: #3182ce;">
+                        
+                    </div>
+
+                </div>
+
+                <div class="gu-form-actions">
+                   
+                    <button type="submit" class="btn-submit" >
+                        Enregistrer les modifications
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

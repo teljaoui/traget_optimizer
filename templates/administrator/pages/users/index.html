@@ -4,7 +4,7 @@
 {% block nav_users %}active{% endblock %}
 
 {% block content %}
-<div class="main-content">
+<div class="content">
 
   <div class="gu-header">
     <a href="{% url 'user_add' %}" class="gu-btn-new">
@@ -53,8 +53,12 @@
 
             <td class="td-center">
               <div class="gu-actions">
-                <a href="#" class="btn gu-action-edit"><i class="fas fa-pen"></i></a>
-                <a href="#" class="btn gu-action-delete"><i class="fas fa-trash"></i></a>
+                <a href="{% url 'user_update' user.id %}" class="btn gu-action-edit"><i class="fas fa-pen"></i></a>
+                <a href="{% url 'user_delete' user.id %}" 
+                  class="btn gu-action-delete" 
+                  onclick="return confirm('Supprimer cette utilisateur ?');">
+                  <i class="fas fa-trash"></i>
+                </a>
               </div>
             </td>
           </tr>
@@ -69,8 +73,6 @@
       </table>
     </div>
   </div>
-
 </div>
-
 
 {% endblock %}

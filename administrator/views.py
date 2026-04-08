@@ -95,12 +95,74 @@ def user_index(request):
 
 @admin_required
 def user_add(request):
-      return render(request, 'administrator/pages/users/ajouter.html')
+    if request.method == 'POST':
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+        telephone = request.POST.get('telephone')
+        password = request.POST.get('password')
+        role = request.POST.get('role')
+
+        if not email:
+            messages.error(request, "L'email est obligatoire")
+            return redirect('user_add')
+        elif not password:
+            messages.error(request, "Le mot de passe est obligatoire")
+            return redirect('user_add')
+        
+        new_user = User(
+            first_name = first_name,
+            last_name = last_name,
+            email = email,
+            telephone = telephone,
+            role = role
+        )
+        new_user.set_password(password)
+        new_user.save()
+        
+        messages.success(request, "Utilisateur créé avec succès")
+        return redirect('user_index')
+    
+    return render(request, 'administrator/pages/users/ajouter.html')
+
 
 @admin_required
-def user_update(request):
-      return render(request, 'administrator/pages/users/modifier.html')
+def user_update(request, id):
+    user = get_object_or_404(User, id=id)
+    
+    if request.method == 'POST':
+        # Récupération des données du formulaire
+        user.first_name = request.POST.get('first_name')
+        user.last_name = request.POST.get('last_name')
+        user.email = request.POST.get('email')
+        user.role = request.POST.get('role')
+        user.telephone = request.POST.get('telephone')
+        
+        user.is_active = 'is_active' in request.POST
+        
+        new_password = request.POST.get('password')
+        if new_password:
+            user.set_password(new_password)
+            
+        user.save()
+        messages.success(request, f"L'utilisateur {user.first_name} a été mis à jour.")
+        return redirect('user_index')
+        
+    return render(request, 'administrator/pages/users/modifier.html', {'user': user})
+    
+    
+@admin_required
+def user_delete(request, id):
+    user_to_delete = get_object_or_404(User, id=id)
+    
+    if user_to_delete.id == request.session.get('user_id'):
+        messages.error(request, "Vous ne pouvez pas supprimer votre propre compte.")
+        return redirect('user_index')
 
-
-
-
+    try:
+        user_to_delete.delete()
+        messages.success(request, "Utilisateur supprimé avec succès.")
+    except ProtectedError:
+        messages.error(request, "Impossible de supprimer cet utilisateur car il est lié à d'autres données (ex: Zones, Affectations).")
+    
+    return redirect('user_index')
