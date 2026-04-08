@@ -1,0 +1,146 @@
+{% extends "administrator/layout/base.html" %}
+
+{% block title %}Liste des Optimisations{% endblock %}
+{% block page_title %}Liste des Optimisations{% endblock %}
+{% block nav_targets %}active{% endblock %}
+
+{% block content %}
+
+<div class="content">
+    <div class="dashboard-container">
+
+        <div class="left-content">
+
+            <div class="header-map">
+                <div class="header-info">
+                    <h3>
+                        {{ optimisation.nom }}
+                        <span class="gu-status {% if optimisation.is_active %}gu-status--active{% else %}gu-status--inactive{% endif %}">
+                            {% if optimisation.is_active %}Actif{% else %}Inactif{% endif %}
+                        </span>
+                    </h3>
+                </div>
+                <div class="gu-actions">
+                    <a href="{% url 'optimisation_update' optimisation.id %}" class="btn gu-action-edit" title="Modifier">
+                        <i class="fas fa-pen"></i>
+                    </a>
+                    <a href="{% url 'optimisation_delete' optimisation.id %}"
+                       class="btn gu-action-delete"
+                       title="Supprimer"
+                       onclick="return confirm('Supprimer cette optimisation ?');">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div id="map"></div>
+        </div>
+
+        <div class="right-content">
+            <h3>Liste des Zones</h3>
+
+            <a href="" class="btn btn-add-zone ">
+                <i class="fas fa-plus"></i> Ajouter une zone
+            </a>
+
+            <div class="zones-container">
+
+                {% if zones %}
+                    {% for zone in zones %}
+                    <div class="zone-item {% if forloop.first %}active{% endif %}">
+
+                        <div class="zone-header" onclick="toggleZone(this)">
+                            <div class="zone-meta">
+                                <p class="zone-name">{{ zone.nom }}</p>
+                                <p class="zone-sub">{{ zone.description|default:"—" }}</p>
+                            </div>
+
+                            <div class="zone-actions">
+                                <a href="#" class="btn-icon btn-comment" title="Commenter">
+                                    <i class="fas fa-comment"></i>
+                                </a>
+                                <a href="{% url 'zone_update' zone.id %}" class="btn-icon btn-edit" title="Modifier">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                                <a href="{% url 'zone_delete' zone.id %}"
+                                   class="btn-icon btn-delete"
+                                   title="Supprimer"
+                                   onclick="return confirm('Supprimer cette zone ?');">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+
+                            <span class="zone-badge">
+                                {{ zone.points.count }} / {{ zones|length }}
+                            </span>
+
+                            <svg class="zone-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <polyline points="4,6 8,10 12,6"/>
+                            </svg>
+                        </div>
+
+                        <div class="points-list">
+                            {% for point in zone.points.all %}
+                            <div class="point-item">
+                                <div class="point-title">
+                                    <div class="point-loc-icon {% if point.visite %}loc-visited{% else %}loc-not-visited{% endif %}">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                                        </svg>
+                                    </div>
+                                    <span>Point {{ forloop.counter|stringformat:"03d" }}</span>
+                                </div>
+                                <span class="gu-status {% if point.visite %}gu-status--active{% else %}gu-status--inactive{% endif %}">
+                                    {% if point.visite %}Visité{% else %}Non Visité{% endif %}
+                                </span>
+                            </div>
+                            {% empty %}
+                            <p>Aucun point</p>
+                            {% endfor %}
+                        </div>
+
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="padding:10px;">Aucune zone trouvée</p>
+                {% endif %}
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    var zones = {{ zones_json|safe }};
+    var sommets = {{ sommets_json|safe }};
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        if (typeof sommets !== "undefined") {
+            sommets.forEach(s => {
+                L.marker([s.lat, s.lng]).addTo(window.map);
+            });
+        }
+
+        if (typeof zones !== "undefined") {
+            zones.forEach(zone => {
+                var latlngs = zone.points.map(p => [p.lat, p.lng]);
+                if (latlngs.length > 0) {
+                    L.polygon(latlngs, { color: 'blue' })
+                        .addTo(window.map)
+                        .bindPopup(zone.nom);
+                }
+            });
+        }
+
+    });
+
+    function toggleZone(el) {
+        el.parentElement.classList.toggle("active");
+    }
+</script>
+{% endblock %}

@@ -3,16 +3,18 @@ from accounts.decorators import admin_required
 from django.shortcuts import render
 from accounts.models import User
 from .models import Optimisation
+from  .models import Sommet
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.db.models import ProtectedError
 from django.shortcuts import get_object_or_404, redirect
-
+import json
 
 
 @admin_required
 def admin_dashboard(request):
     return render(request, 'administrator/pages/dashboard.html')
+
 
 @admin_required
 def optimisation_index(request):
@@ -20,6 +22,7 @@ def optimisation_index(request):
     return render(request, 'administrator/pages/optimisation/index.html', {
         'optimisations': optimisations
     })
+
 
 @admin_required
 def optimisation_add(request):
@@ -62,6 +65,7 @@ def optimisation_update(request, id):
         'optimisation': optimisation
     })
 
+
 @admin_required
 def optimisation_delete(request, id):
     optimisation = get_object_or_404(Optimisation, id=id)
@@ -75,13 +79,53 @@ def optimisation_delete(request, id):
 
     return redirect('optimisation_index')
 
+
+
 @admin_required
-def optimisation_zone(request):
-      return render(request, 'administrator/pages/optimisation/index_zone.html')
+def optimisation_zone(request, id):
+    optimisation = get_object_or_404(Optimisation, id=id)
+
+    # ✅ 1. Toutes les zones avec leurs points
+    zones = optimisation.zones.all().prefetch_related('points__sommet')
+
+    zones_data = []
+    for zone in zones:
+        points = []
+
+        for point in zone.points.all():
+            points.append({
+                'lat': point.sommet.latitude,
+                'lng': point.sommet.longitude,
+                'ordre': point.ordre
+            })
+
+        zones_data.append({
+            'nom': zone.nom,
+            'points': points
+        })
+
+    # ✅ 2. Tous les sommets (IMPORTANT 🔥)
+    sommets = Sommet.objects.all()
+
+    sommets_data = []
+    for s in sommets:
+        sommets_data.append({
+            'lat': s.latitude,
+            'lng': s.longitude
+        })
+
+    return render(request, 'administrator/pages/optimisation/index_zone.html', {
+        'optimisation': optimisation,
+        'zones': zones,  # pour HTML
+        'zones_json': json.dumps(zones_data),  # pour map
+        'sommets_json': json.dumps(sommets_data)  # tous les points
+    })
+
 
 @admin_required
 def optimisation_zone_detail(request):
-      return render(request, 'administrator/pages/optimisation/zone.html')
+    return render(request, 'administrator/pages/optimisation/zone.html')
+
 
 @admin_required
 def user_index(request):
@@ -92,6 +136,7 @@ def user_index(request):
     return render(request, 'administrator/pages/users/index.html', {
         'users': users
     })
+
 
 @admin_required
 def user_add(request):
@@ -109,52 +154,51 @@ def user_add(request):
         elif not password:
             messages.error(request, "Le mot de passe est obligatoire")
             return redirect('user_add')
-        
+
         new_user = User(
-            first_name = first_name,
-            last_name = last_name,
-            email = email,
-            telephone = telephone,
-            role = role
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            telephone=telephone,
+            role=role
         )
         new_user.set_password(password)
         new_user.save()
-        
+
         messages.success(request, "Utilisateur créé avec succès")
         return redirect('user_index')
-    
+
     return render(request, 'administrator/pages/users/ajouter.html')
 
 
 @admin_required
 def user_update(request, id):
     user = get_object_or_404(User, id=id)
-    
+
     if request.method == 'POST':
-        # Récupération des données du formulaire
         user.first_name = request.POST.get('first_name')
         user.last_name = request.POST.get('last_name')
         user.email = request.POST.get('email')
         user.role = request.POST.get('role')
         user.telephone = request.POST.get('telephone')
-        
+
         user.is_active = 'is_active' in request.POST
-        
+
         new_password = request.POST.get('password')
         if new_password:
             user.set_password(new_password)
-            
+
         user.save()
         messages.success(request, f"L'utilisateur {user.first_name} a été mis à jour.")
         return redirect('user_index')
-        
+
     return render(request, 'administrator/pages/users/modifier.html', {'user': user})
-    
-    
+
+
 @admin_required
 def user_delete(request, id):
     user_to_delete = get_object_or_404(User, id=id)
-    
+
     if user_to_delete.id == request.session.get('user_id'):
         messages.error(request, "Vous ne pouvez pas supprimer votre propre compte.")
         return redirect('user_index')
@@ -163,6 +207,7 @@ def user_delete(request, id):
         user_to_delete.delete()
         messages.success(request, "Utilisateur supprimé avec succès.")
     except ProtectedError:
-        messages.error(request, "Impossible de supprimer cet utilisateur car il est lié à d'autres données (ex: Zones, Affectations).")
-    
+        messages.error(request,
+                       "Impossible de supprimer cet utilisateur car il est lié à d'autres données (ex: Zones, Affectations).")
+
     return redirect('user_index')

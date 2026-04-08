@@ -6,81 +6,86 @@
 
 {% block content %}
 
-<div class="main-content">
+<div class="content">
 
-  <div class="gu-header">
-    <a href="{% url 'optimisation_add' %}" class="gu-btn-new">
-      <i class="fas fa-plus"></i> Ajouter une optimisation
-    </a>
-  </div>
+    <div class="gu-header">
+        <a href="{% url 'optimisation_add' %}" class="gu-btn-new">
+            <i class="fas fa-plus"></i> Ajouter une optimisation
+        </a>
+    </div>
 
-  <div class="gu-card">
+    <div class="gu-card">
 
-    <div class="gu-table-wrapper">
-      <table class="gu-table">
+        <div class="gu-table-wrapper">
+            <table class="gu-table">
 
-        <thead>
-          <tr>
-            <th>Nom</th>
-            <th>Active</th>
-            <th class="th-center">Actions</th>
-          </tr>
-        </thead>
+                <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Active</th>
+                    <th class="th-center">Actions</th>
+                </tr>
+                </thead>
 
-        <tbody>
+                <tbody>
 
-          {% for opt in optimisations %}
-          <tr>
-            <td>
-              <div class="gu-user-info">
-                <span class="gu-user-name">{{ opt.nom }}</span>
-              </div>
-            </td>
+                {% for opt in optimisations %}
+                <tr>
+                    <td>
+                        <div class="gu-user-info">
+                            <a href="{% url 'zone_optimisation' opt.id  %}">
+                                    <span class="gu-user-name">
+                                        {{ opt.nom }}
+                                    </span>
+                            </a>
 
-            <td>
-              {% if opt.is_active %}
-                <span class="gu-status gu-status--active">
+                        </div>
+                    </td>
+
+                    <td>
+                        {% if opt.is_active %}
+                        <span class="gu-status gu-status--active">
                   
                   Oui
                 </span>
-              {% else %}
-                <span class="gu-status gu-status--inactive">
+                        {% else %}
+                        <span class="gu-status gu-status--inactive">
                   
                   Non
                 </span>
-              {% endif %}
-            </td>
+                        {% endif %}
+                    </td>
 
-            <td class="td-center">
-              <div class="gu-actions">
-                
-                <a href="{% url 'optimisation_update' opt.id %}" class="btn gu-action-edit">
-                  <i class="fas fa-pen"></i>
-                </a>
+                    <td class="td-center">
+                        <div class="gu-actions">
 
-                <a href="{% url 'optimisation_delete' opt.id %}" class="btn gu-action-delete"
-                   onclick="return confirm('Supprimer cette optimisation ?');">
-                  <i class="fas fa-trash"></i>
-                </a>
+                            <a href="{% url 'optimisation_update' opt.id %}" class="btn gu-action-edit">
+                                <i class="fas fa-pen"></i>
+                            </a>
 
-              </div>
-            </td>
-          </tr>
+                            <a href="{% url 'optimisation_delete' opt.id %}" class="btn gu-action-delete"
+                               onclick="return confirm('Supprimer cette optimisation ?');">
+                                <i class="fas fa-trash"></i>
+                            </a>
 
-          {% empty %}
-          <tr>
-            <td colspan="3" style="text-align:center;">
-              Aucune optimisation trouvée
-            </td>
-          </tr>
-          {% endfor %}
+                        </div>
+                    </td>
+                </tr>
 
-        </tbody>
+                {% empty %}
+                <tr>
+                    <td colspan="3" style="text-align:center;">
+                        Aucune optimisation trouvée
+                    </td>
+                </tr>
+                {% endfor %}
 
-      </table>
+                </tbody>
+
+            </table>
+        </div>
+
     </div>
-
-  </div>
 
 </div>
 

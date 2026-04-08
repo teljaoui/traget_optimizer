@@ -6,83 +6,83 @@
 
 {% block content %}
 <div class="dashboard-container">
-  <div class="left-content">
-    <div id="map"></div>
-  </div>
-
-  <div class="right-content">
-    <h3>Optimisation Sélectionnée</h3>
-    <p class="subtitle">Liste des Zones</p>
-
-    <div class="zones-container">
-      <div class="zone-item active">
-        <div class="zone-header" onclick="toggleZone(this)">
-          <div class="zone-meta">
-            <p class="zone-name">Zone A</p>
-            <p class="zone-sub">Secteur Nord</p>
-          </div>
-          <span class="zone-badge">1 / 2</span>
-          <svg class="zone-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
-            <polyline points="4,6 8,10 12,6" />
-          </svg>
-        </div>
-        <div class="points-list">
-          <div class="point-item">
-            <div class="point-title">
-              <div class="point-loc-icon loc-visited">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
-                  <path
-                    d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-                </svg>
-              </div>
-              <span>Point 001</span>
-            </div>
-            <span class="gu-status gu-status--active">Visité</span>
-          </div>
-          <div class="point-item">
-            <div class="point-title">
-              <div class="point-loc-icon loc-not-visited">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
-                  <path
-                    d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-                </svg>
-              </div>
-              <span>Point 002</span>
-            </div>
-            <span class="gu-status gu-status--inactive">Non Visité</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="zone-item">
-        <div class="zone-header" onclick="toggleZone(this)">
-          <div class="zone-meta">
-            <p class="zone-name">Zone B</p>
-            <p class="zone-sub">Secteur Sud</p>
-          </div>
-          <span class="zone-badge">1 / 1</span>
-          <svg class="zone-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
-            <polyline points="4,6 8,10 12,6" />
-          </svg>
-        </div>
-        <div class="points-list">
-          <div class="point-item">
-            <div class="point-title">
-              <div class="point-loc-icon loc-visited">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
-                  <path
-                    d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-                </svg>
-              </div>
-              <span>Point 001</span>
-            </div>
-            <span class="gu-status gu-status--active">Visité</span>
-          </div>
-        </div>
-      </div>
+    <div class="left-content">
+        <div id="map"></div>
     </div>
 
-  </div>
+    <div class="right-content">
+        <h3>Optimisation Sélectionnée</h3>
+        <p class="subtitle">Liste des Zones</p>
+
+        <div class="zones-container">
+            <div class="zone-item active">
+                <div class="zone-header" onclick="toggleZone(this)">
+                    <div class="zone-meta">
+                        <p class="zone-name">Zone A</p>
+                        <p class="zone-sub">Secteur Nord</p>
+                    </div>
+                    <span class="zone-badge">1 / 2</span>
+                    <svg class="zone-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <polyline points="4,6 8,10 12,6"/>
+                    </svg>
+                </div>
+                <div class="points-list">
+                    <div class="point-item">
+                        <div class="point-title">
+                            <div class="point-loc-icon loc-visited">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                                    <path
+                                            d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                                </svg>
+                            </div>
+                            <span>Point 001</span>
+                        </div>
+                        <span class="gu-status gu-status--active">Visité</span>
+                    </div>
+                    <div class="point-item">
+                        <div class="point-title">
+                            <div class="point-loc-icon loc-not-visited">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                                    <path
+                                            d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                                </svg>
+                            </div>
+                            <span>Point 002</span>
+                        </div>
+                        <span class="gu-status gu-status--inactive">Non Visité</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="zone-item">
+                <div class="zone-header" onclick="toggleZone(this)">
+                    <div class="zone-meta">
+                        <p class="zone-name">Zone B</p>
+                        <p class="zone-sub">Secteur Sud</p>
+                    </div>
+                    <span class="zone-badge">1 / 1</span>
+                    <svg class="zone-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <polyline points="4,6 8,10 12,6"/>
+                    </svg>
+                </div>
+                <div class="points-list">
+                    <div class="point-item">
+                        <div class="point-title">
+                            <div class="point-loc-icon loc-visited">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                                    <path
+                                            d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                                </svg>
+                            </div>
+                            <span>Point 001</span>
+                        </div>
+                        <span class="gu-status gu-status--active">Visité</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
 </div>
 
 </div>
