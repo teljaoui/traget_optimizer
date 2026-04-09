@@ -1,14 +1,15 @@
 # administrator/views.py
-from accounts.decorators import admin_required
-from django.shortcuts import render
-from accounts.models import User
-from .models import Optimisation
-from  .models import Sommet
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.shortcuts import render, redirect
 from django.db.models import ProtectedError
-from django.shortcuts import get_object_or_404, redirect
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.db import transaction
 import json
+
+from accounts.decorators import admin_required
+from accounts.models import User
+from .models import Optimisation, Zone, Sommet, PointZone, Affectation
 
 
 @admin_required
@@ -80,48 +81,71 @@ def optimisation_delete(request, id):
     return redirect('optimisation_index')
 
 
-
 @admin_required
 def optimisation_zone(request, id):
     optimisation = get_object_or_404(Optimisation, id=id)
-
-    # ✅ 1. Toutes les zones avec leurs points
-    zones = optimisation.zones.all().prefetch_related('points__sommet')
+    zones = optimisation.zones.all().prefetch_related('points', 'affectations__user')  # ✅ ajouter affectations__user
 
     zones_data = []
     for zone in zones:
-        points = []
+        points = [
+            {'lat': p.latitude, 'lng': p.longitude, 'ordre': p.ordre}
+            for p in zone.points.all()
+        ]
+        zones_data.append({'id': zone.id, 'nom': zone.nom, 'points': points})
 
-        for point in zone.points.all():
-            points.append({
-                'lat': point.sommet.latitude,
-                'lng': point.sommet.longitude,
-                'ordre': point.ordre
-            })
-
-        zones_data.append({
-            'nom': zone.nom,
-            'points': points
-        })
-
-    # ✅ 2. Tous les sommets (IMPORTANT 🔥)
-    sommets = Sommet.objects.all()
-
-    sommets_data = []
-    for s in sommets:
-        sommets_data.append({
-            'lat': s.latitude,
-            'lng': s.longitude
-        })
+    sommets_data = list(Sommet.objects.values('id', 'latitude', 'longitude'))
+    users = User.objects.all().values('id', 'first_name', 'last_name', 'email')
 
     return render(request, 'administrator/pages/optimisation/index_zone.html', {
         'optimisation': optimisation,
-        'zones': zones,  # pour HTML
-        'zones_json': json.dumps(zones_data),  # pour map
-        'sommets_json': json.dumps(sommets_data)  # tous les points
+        'zones': zones,
+        'zones_json': json.dumps(zones_data),
+        'sommets_json': json.dumps(sommets_data),
+        'users_json': json.dumps(list(users)),
     })
 
+@admin_required
+@require_POST
+def zone_create(request, optimisation_id):
+    try:
+        data          = json.loads(request.body)
+        nom           = data.get('nom', '').strip()
+        user_id       = data.get('user_id')
+        algorithme_id = data.get('algorithme_id')
+        points        = data.get('points', [])
 
+        if not nom:
+            return JsonResponse({'error': 'Nom requis'}, status=400)
+        if len(points) < 3:
+            return JsonResponse({'error': 'Au moins 3 points requis'}, status=400)
+
+        optimisation = get_object_or_404(Optimisation, id=optimisation_id)
+
+        with transaction.atomic():
+            zone = Zone.objects.create(
+                nom=nom,
+                optimisation=optimisation,
+                algorithme_id=algorithme_id,
+            )
+
+            for i, p in enumerate(points):
+                # ✅ Direct dans PointZone, sans passer par Sommet
+                PointZone.objects.create(
+                    zone=zone,
+                    latitude=p['lat'],
+                    longitude=p['lng'],
+                    ordre=i + 1
+                )
+
+            if user_id:
+                user = get_object_or_404(User, id=user_id)
+                Affectation.objects.get_or_create(user=user, zone=zone)
+
+        return JsonResponse({'success': True, 'zone_id': zone.id})
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 @admin_required
 def optimisation_zone_detail(request):
     return render(request, 'administrator/pages/optimisation/zone.html')

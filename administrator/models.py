@@ -59,26 +59,15 @@ class Sommet(models.Model):
 
 
 class PointZone(models.Model):
-    zone   = models.ForeignKey(
-                Zone,
-                on_delete=models.CASCADE,
-                related_name='points'
-             )
-    sommet = models.ForeignKey(
-                Sommet,
-                on_delete=models.CASCADE,
-                related_name='point_zones'
-             )
-    ordre  = models.PositiveIntegerField()
+    zone      = models.ForeignKey(Zone, on_delete=models.CASCADE, related_name='points')
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+    ordre     = models.PositiveIntegerField()
 
     class Meta:
-        db_table = 'point_zones'
-        ordering = ['ordre']
+        db_table      = 'point_zones'
+        ordering      = ['ordre']
         unique_together = [('zone', 'ordre')]
-
-    def __str__(self):
-        return f"Zone {self.zone_id} – Sommet {self.sommet_id} (ordre {self.ordre})"
-
 
 class Trajet(models.Model):
     zone            = models.ForeignKey(

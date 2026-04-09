@@ -19,5 +19,7 @@ urlpatterns = [
 
     # ZONE
     path('optimisation/zone/index/<int:id>/', views.optimisation_zone, name='zone_optimisation'),
+    path('optimisation/<int:optimisation_id>/zones/create/', views.zone_create, name='zone_create'),
+
     path('optimisation/zone/detail/<int:id>/', views.optimisation_zone_detail, name='zone_detail_optimisation'),
 ]
