@@ -1,6 +1,64 @@
 {% extends 'utilisateur/layout/base.html' %}
-{% block title %}Dashboard Utilisateur{% endblock %}
+{% load static %}
+
+{% block title %}Mon Trajet Actif — {{ user.first_name }}{% endblock %}
+
 {% block content %}
-<h1>Bienvenue — {{ user.username }}</h1>
-<a href="{% url 'logout' %}">Déconnexion</a>
+   <header class="topbar">
+        <h1 class="topbar-title">MON TRAJET ACTIF</h1>
+        <div class="user-info">
+        <div class="user-avatar">{{ request.session.user_name|slice:":1" }}</div>
+            <span class="user-name">
+
+                {{ request.session.user_name }}
+            </span>
+            <a href="{% url 'logout' %}" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+            </a>
+        </div>
+    </header>
+
+<div class="main-wrapper">
+ 
+    <main class="main-content">
+        <div class="dashboard-container">
+            <div class="left-content">
+                <div id="map"></div>
+            </div>
+
+            <aside class="right-content">
+                <h3>POINTS À SUIVRE (TOURNEE A-45)</h3>
+                <p class="subtitle">Suivez votre itinéraire en temps réel</p>
+
+                <div class="zones-container">
+                    <div class="zone-item active">
+                        <div class="zone-header" onclick="toggleZone(this)">
+                            <div class="zone-icon icon-a">1</div>
+                            <div class="zone-meta">
+                                <p class="zone-name">POINT 1 - DÉPÔT CASABLANCA</p>
+                                <p class="zone-sub">12h00 - Adresse Casablanca - 311</p>
+                            </div>
+                            <span class="zone-badge">COMPLÉTÉ</span>
+                        </div>
+                    </div>
+
+                    <div class="zone-item active">
+                        <div class="zone-header" onclick="toggleZone(this)">
+                            <div class="zone-icon icon-a">2</div>
+                            <div class="zone-meta">
+                                <p class="zone-name">POINT 2 - CLIENT ACHRAF</p>
+                                <p class="zone-sub">En cours - Livraison Colis</p>
+                            </div>
+                            <span class="zone-badge" style="background: #dbeafe; color: #1d4ed8;">EN COURS</span>
+                        </div>
+                        <div class="points-list" style="display: block; padding: 15px;">
+                            <button class="btn-primary" style="margin-bottom: 10px;">VALIDER LE POINT</button>
+                            <button class="btn-ghost" style="width: 100%; border: 1px solid #cbd5e1;">SIGNALER PROBLÈME</button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+</div>
 {% endblock %}

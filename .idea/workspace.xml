@@ -2,13 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f9420ec3-04ec-413d-82af-05f116fc14d8" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/target_optimizer.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/target_optimizer.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/administrator/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/administrator/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/administrator/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/administrator/utils.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/administrator/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/administrator/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/js/optimisation_zone.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/optimisation_zone.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/administrator/pages/optimisation/ajouter.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/administrator/pages/optimisation/ajouter.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/optimisation_zone_detail.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/optimisation_zone_detail.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/administrator/pages/optimisation/index_zone.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/administrator/pages/optimisation/index_zone.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/administrator/pages/optimisation/zone.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/administrator/pages/optimisation/zone.html" afterDir="false" />
     </list>

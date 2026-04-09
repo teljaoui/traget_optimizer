@@ -50,31 +50,32 @@
 
 
                 <!-- Algorithme -->
-                <div class="form-group" style="margin-bottom:10px;">
-                    <label>Algorithme de recherche</label>
+<div class="form-group" style="margin-bottom:10px;">
+    <label>Algorithme de recherche</label>
+    <select id="zone-algorithme" class="form-control">
+        <option value="">-- Choisir un algorithme --</option>
+        {% for algo in algorithmes %}
+        <option value="{{ algo.id }}" data-nom="{{ algo.nom|upper }}">
+            {{ algo.nom }}
+        </option>
+        {% endfor %}
+    </select>
+</div>
 
-                    <select id="zone-algorithme" class="form-control">
-                        <option value="">-- Choisir un algorithme --</option>
 
-                        {% for algo in algorithmes %}
-                        <option value="{{ algo.id }}">
-                            {{ algo.nom }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                </div>
 
-                <!-- Boutons -->
-                <div style="display:flex; justify-content :flex-end;  gap:10px;">
-                    <button class="button" id="btn-save-zone">
-                        Enregistrer
-                    </button>
+<!-- Résultat algo -->
+<div id="algo-result-info" style="display:none; margin-bottom:10px; padding:10px; background:#ecfdf5; border:1px solid #6ee7b7; border-radius:8px; font-size:13px; color:#065f46;"></div>
 
-                    <button class="button-reset" id="btn-cancel-zone">
-                        Annuler
-                    </button>
-                </div>
-
+<!-- Boutons -->
+<div style="display:flex; justify-content:flex-end; gap:10px;">
+    <button class="button" id="btn-test-zone">
+        <i class="fas fa-route"></i> Tester
+    </button>
+    <button class="button-reset" id="btn-cancel-zone">
+        Annuler
+    </button>
+</div>
             </div>
 
             <h3>

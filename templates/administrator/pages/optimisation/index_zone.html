@@ -117,30 +117,10 @@
 
 {% block extra_js %}
 <script>
-    var zones = {
-    {
-        zones_json | safe
-    }
-    }
-    ;
-    var sommets = {
-    {
-        sommets_json | safe
-    }
-    }
-    ;
-    var usersData = {
-    {
-        users_json | safe
-    }
-    }
-    ;
-    var optimisationId = {
-    {
-        optimisation.id
-    }
-    }
-    ;
+    var zones = {{zones_json | safe}};
+    var sommets = {{sommets_json | safe}};
+    var usersData = {{users_json | safe}};
+    var optimisationId = {{optimisation.id}};
     var csrfToken = '{{ csrf_token }}';
 </script>
 <script src="{% static 'js/optimisation_zone.js' %}"></script>

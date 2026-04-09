@@ -22,4 +22,7 @@ urlpatterns = [
     path('optimisation/<int:optimisation_id>/zones/create/', views.zone_create, name='zone_create'),
 
     path('optimisation/zone/detail/<int:id>/', views.optimisation_zone_detail, name='zone_detail_optimisation'),
+
+    path('zone/<int:id>/tsp/', views.zone_tsp_api, name='zone_tsp_api'),
+
 ]

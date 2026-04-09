@@ -10,7 +10,7 @@ import json
 from accounts.decorators import admin_required
 from accounts.models import User
 from .models import Optimisation, Zone, Sommet, PointZone, Affectation, Algorithme
-from .utils import point_in_polygon
+from .utils import point_in_polygon, executer_algorithme
 
 
 
@@ -109,6 +109,47 @@ def optimisation_zone(request, id):
     })
 
 @admin_required
+def zone_tsp_api(request, id):
+    zone = get_object_or_404(Zone, id=id)
+
+    points = [
+        {'lat': p.latitude, 'lng': p.longitude, 'ordre': p.ordre}
+        for p in zone.points.all().order_by('ordre')
+    ]
+
+    if len(points) < 3:
+        return JsonResponse({'error': 'Zone insuffisante'}, status=400)
+
+    algo_id = request.GET.get('algo_id')
+    if not algo_id:
+        return JsonResponse({'error': 'Algorithme non spécifié'}, status=400)
+
+    algorithme = get_object_or_404(Algorithme, id=algo_id)
+
+    tous_sommets = list(Sommet.objects.values('id', 'latitude', 'longitude'))
+    sommets_dans_zone = [
+        s for s in tous_sommets
+        if point_in_polygon(s['latitude'], s['longitude'], points)
+    ]
+
+    if len(sommets_dans_zone) < 2:
+        return JsonResponse({'error': 'Pas assez de sommets dans la zone'}, status=400)
+
+    try:
+        resultat = executer_algorithme(algorithme.nom, sommets_dans_zone)
+    except ValueError as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+    return JsonResponse({
+    'chemin':          resultat['chemin'],
+    'distance_totale': resultat['distance_totale'],
+    'nb_sommets':      resultat['nb_sommets'],
+    'algorithme':      algorithme.nom,
+    'unite':           'km',  # ← ajouter
+    })
+
+
+@admin_required
 @require_POST
 def zone_create(request, optimisation_id):
     try:
@@ -191,6 +232,7 @@ def optimisation_zone_detail(request, id):
         # 🔥 important
         'algorithmes': algorithmes,
     })
+
 @admin_required
 def user_index(request):
     current_user_id = request.session.get('user_id')
