@@ -9,7 +9,10 @@ import json
 
 from accounts.decorators import admin_required
 from accounts.models import User
-from .models import Optimisation, Zone, Sommet, PointZone, Affectation
+from .models import Optimisation, Zone, Sommet, PointZone, Affectation, Algorithme
+from .utils import point_in_polygon
+
+
 
 
 @admin_required
@@ -146,11 +149,48 @@ def zone_create(request, optimisation_id):
 
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+    
+
+
 @admin_required
-def optimisation_zone_detail(request):
-    return render(request, 'administrator/pages/optimisation/zone.html')
+def optimisation_zone_detail(request, id):
+    zone = get_object_or_404(Zone, id=id)
 
+    points = [
+        {'lat': p.latitude, 'lng': p.longitude, 'ordre': p.ordre}
+        for p in zone.points.all().order_by('ordre')
+    ]
 
+    zone_data = {
+        'id': zone.id,
+        'nom': zone.nom,
+        'points': points
+    }
+
+    algorithmes = Algorithme.objects.all()
+
+    tous_sommets = Sommet.objects.all()
+    sommets_dans_zone = []
+
+    if len(points) >= 3:
+        for sommet in tous_sommets:
+            if point_in_polygon(sommet.latitude, sommet.longitude, points):
+                sommets_dans_zone.append(sommet)
+
+    sommets_data = list(Sommet.objects.values('id', 'latitude', 'longitude'))
+    affectations = zone.affectations.select_related('user').all()
+
+    return render(request, 'administrator/pages/optimisation/zone.html', {
+        'zone': zone,
+        'optimisation': zone.optimisation,
+        'zone_json': json.dumps(zone_data),
+        'sommets_json': json.dumps(sommets_data),
+        'sommets_zone': sommets_dans_zone,
+        'affectations': affectations,
+
+        # 🔥 important
+        'algorithmes': algorithmes,
+    })
 @admin_required
 def user_index(request):
     current_user_id = request.session.get('user_id')

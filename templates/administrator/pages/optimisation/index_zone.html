@@ -1,7 +1,7 @@
 {% extends "administrator/layout/base.html" %}
 {% load static %}
-{% block title %}Liste des Optimisations{% endblock %}
-{% block page_title %}Liste des Optimisations{% endblock %}
+{% block title %}Détails de l’optimisation — {{ optimisation.nom }}{% endblock %}
+{% block page_title %}Détails de l’optimisation : {{ optimisation.nom }}{% endblock %}
 {% block nav_targets %}active{% endblock %}
 
 {% block content %}
@@ -79,30 +79,30 @@
             <div class="zones-container">
 
                 {% if zones %}
-               {% for zone in zones %}
-<div class="zone-item {% if forloop.first %}active{% endif %}">
+                {% for zone in zones %}
+                <div class="zone-item {% if forloop.first %}active{% endif %}">
 
-    <a href="#" class="zone-header">
-        <div class="zone-meta">
-            <p class="zone-name">{{ zone.nom }}</p>
+                    <a href="{% url 'zone_detail_optimisation' zone.id  %}" class="zone-header">
+                        <div class="zone-meta">
+                            <p class="zone-name">{{ zone.nom }}</p>
 
-            <p class="zone-sub">
-                <i class="fas fa-user"></i>
-                {% with affectation=zone.affectations.first %}
-                    {% if affectation %}
-                        {{ affectation.user.first_name }} {{ affectation.user.last_name }}
-                    {% else %}
-                        <span style="color:#aaa;">Non affecté</span>
-                    {% endif %}
-                {% endwith %}
-            </p>
+                            <p class="zone-sub">
+                                <i class="fas fa-user"></i>
+                                {% with affectation=zone.affectations.first %}
+                                {% if affectation %}
+                                {{ affectation.user.first_name }} {{ affectation.user.last_name }}
+                                {% else %}
+                                <span style="color:#aaa;">Non affecté</span>
+                                {% endif %}
+                                {% endwith %}
+                            </p>
 
-            <p class="zone-sub">{{ zone.algorithme|default:"—" }}</p>
-        </div>
-    </a>
+                            <p class="zone-sub">{{ zone.algorithme|default:"—" }}</p>
+                        </div>
+                    </a>
 
-</div>
-{% endfor %}
+                </div>
+                {% endfor %}
                 {% else %}
                 <p style="padding:10px;">Aucune zone trouvée</p>
                 {% endif %}
@@ -117,11 +117,31 @@
 
 {% block extra_js %}
 <script>
-    var zones          = {{ zones_json|safe }};
-    var sommets        = {{ sommets_json|safe }};
-    var usersData      = {{ users_json|safe }};
-    var optimisationId = {{ optimisation.id }};
-    var csrfToken      = '{{ csrf_token }}';
+    var zones = {
+    {
+        zones_json | safe
+    }
+    }
+    ;
+    var sommets = {
+    {
+        sommets_json | safe
+    }
+    }
+    ;
+    var usersData = {
+    {
+        users_json | safe
+    }
+    }
+    ;
+    var optimisationId = {
+    {
+        optimisation.id
+    }
+    }
+    ;
+    var csrfToken = '{{ csrf_token }}';
 </script>
 <script src="{% static 'js/optimisation_zone.js' %}"></script>
 {% endblock %}

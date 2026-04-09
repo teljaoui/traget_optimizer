@@ -1,0 +1,126 @@
+{% extends "administrator/layout/base.html" %}
+{% load static %}
+{% block title %}Détail Zone — {{ zone.nom }}{% endblock %}
+{% block page_title %}Zone : {{ zone.nom }}{% endblock %}
+{% block nav_targets %}active{% endblock %}
+
+{% block content %}
+<div class="content">
+    <div class="dashboard-container">
+
+        <div class="left-content">
+            <div class="header-map">
+                <div class="header-info">
+                    <h3>
+                        {{ zone.nom }}
+                        <span class="gu-status gu-status--active">Zone</span>
+                    </h3>
+                    <p style="color:#888; font-size:13px;">
+                        Optimisation : <strong>{{ optimisation.nom }}</strong>
+                    </p>
+                </div>
+                <div class="gu-actions">
+                    <a href="{% url 'zone_optimisation' optimisation.id %}"
+                       class="btn gu-action-edit" title="Retour">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div id="map"></div>
+        </div>
+
+        <div class="right-content">
+
+            <div style="margin-bottom:16px; padding:12px; background:#1e293b; color:#fff; border-radius:8px; border:1px solid #eee;">
+                <p style="margin:0; font-size:13px;">
+                    <i class="fas fa-user"></i> <strong>Affecté à :</strong>
+                    {% with aff=affectations.first %}
+                    {% if aff %}
+                    {{ aff.user.first_name }} {{ aff.user.last_name }}
+                    {% else %}
+                    <span style="color:#aaa;">Non affecté</span>
+                    {% endif %}
+                    {% endwith %}
+                </p>
+
+            </div>
+
+            <div style="margin-block:12px; padding:16px; border:1px solid #e2e8f0; border-radius:10px; background:#ffffff;">
+
+
+                <!-- Algorithme -->
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label>Algorithme de recherche</label>
+
+                    <select id="zone-algorithme" class="form-control">
+                        <option value="">-- Choisir un algorithme --</option>
+
+                        {% for algo in algorithmes %}
+                        <option value="{{ algo.id }}">
+                            {{ algo.nom }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Boutons -->
+                <div style="display:flex; justify-content :flex-end;  gap:10px;">
+                    <button class="button" id="btn-save-zone">
+                        Enregistrer
+                    </button>
+
+                    <button class="button-reset" id="btn-cancel-zone">
+                        Annuler
+                    </button>
+                </div>
+
+            </div>
+
+            <h3>
+                Sommets dans cette zone
+            </h3>
+
+            <div class="zones-container">
+                {% if sommets_zone %}
+                {% for sommet in sommets_zone %}
+                <div class="zone-item">
+                    <div class="zone-header">
+                        <div class="point-loc-icon loc-visited">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                        d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                            </svg>
+                        </div>
+                        <div class="zone-meta">
+                            <p class="zone-name">
+                                Sommet
+                            </p>
+                            <p class="zone-sub">
+                                {{ sommet.latitude|floatformat:5 }} , {{ sommet.longitude|floatformat:5 }}
+                            </p>
+                        </div>
+                        <span class="gu-status gu-status--active">Visité</span>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p style="padding:10px; color:#aaa;">
+                    <i class="fas fa-info-circle"></i> Aucun sommet dans cette zone
+                </p>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    var zone      = {{ zone_json|safe }};
+    var sommets   = {{ sommets_json|safe }};
+    var csrfToken = '{{ csrf_token }}';
+</script>;
+<script src="{% static 'js/optimisation_zone_detail.js' %}"></script>
+{% endblock %}
