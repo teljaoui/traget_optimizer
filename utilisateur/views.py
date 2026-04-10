@@ -80,6 +80,7 @@ def user_dashboard(request):
                             'ordre':     ts.ordre,
                             'latitude':  float(ts.sommet.latitude),
                             'longitude': float(ts.sommet.longitude),
+                            'status':    ts.status,   # ← indispensable pour le JS
                         }
                         for ts in trajet.sommets.all()
                     ]
@@ -194,4 +195,43 @@ def agent_generer_trajet(request, zone_id):
         'nb_sommets': resultat['nb_sommets'],
         'algorithme': algorithme.nom,
         'unite':      'km',
+    })
+
+
+@user_required
+def update_statut_sommet(request, trajet_id, ordre):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Méthode non autorisée'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'JSON invalide'}, status=400)
+
+    nouveau_statut = data.get('status')
+
+    # Vérifie que le statut est dans les choix valides du modèle
+    statuts_valides = [s.value for s in TrajetSommet.StatusChoices]
+    if nouveau_statut not in statuts_valides:
+        return JsonResponse({'error': f'Statut invalide. Valeurs acceptées : {statuts_valides}'}, status=400)
+
+    # Récupère le TrajetSommet
+    ts = get_object_or_404(TrajetSommet, trajet_id=trajet_id, ordre=ordre)
+
+    # Sécurité : vérifie que ce trajet appartient bien à l'agent connecté
+    user_id = request.session.get('user_id')
+    if not Affectation.objects.filter(user_id=user_id, zone=ts.trajet.zone).exists():
+        return JsonResponse({'error': 'Accès non autorisé'}, status=403)
+
+    # Empêche de repasser un point traité en "en_attente"
+    if ts.status != TrajetSommet.StatusChoices.EN_ATTENTE and nouveau_statut == TrajetSommet.StatusChoices.EN_ATTENTE:
+        return JsonResponse({'error': 'Impossible de repasser un point traité en attente'}, status=403)
+
+    ts.status = nouveau_statut
+    ts.save(update_fields=['status'])
+
+    return JsonResponse({
+        'success': True,
+        'status':  ts.status,
+        'ordre':   ts.ordre,
     })

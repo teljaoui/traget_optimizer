@@ -1,4 +1,5 @@
 {% extends "administrator/layout/base.html" %}
+{% load static %}
 
 {% block title %}Tableau de bord{% endblock %}
 {% block page_title %}Tableau de bord{% endblock %}
@@ -11,79 +12,82 @@
     </div>
 
     <div class="right-content">
-        <h3>Optimisation Sélectionnée</h3>
-        <p class="subtitle">Liste des Zones</p>
 
-        <div class="zones-container">
-            <div class="zone-item active">
-                <div class="zone-header" onclick="toggleZone(this)">
-                    <div class="zone-meta">
-                        <p class="zone-name">Zone A</p>
-                        <p class="zone-sub">Secteur Nord</p>
-                    </div>
-                    <span class="zone-badge">1 / 2</span>
-                    <svg class="zone-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
-                        <polyline points="4,6 8,10 12,6"/>
-                    </svg>
-                </div>
-                <div class="points-list">
-                    <div class="point-item">
-                        <div class="point-title">
-                            <div class="point-loc-icon loc-visited">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
-                                    <path
-                                            d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                                </svg>
+        {% if optimisation %}
+            <h3>{{ optimisation.nom }}</h3>
+            <p class="subtitle">Liste des Zones</p>
+
+            <div class="zones-container">
+                {% if zones_data %}
+                    {% for zone in zones_data %}
+                    <div class="zone-item {% if forloop.first %}active{% endif %}">
+
+                        <div class="zone-header" onclick="toggleZone(this)">
+                            <div class="zone-meta">
+                                <p class="zone-name">{{ zone.nom }}</p>
+                                <p class="zone-sub">
+                                    {{ zone.visites }} / {{ zone.total }} sommets visités
+                                </p>
                             </div>
-                            <span>Point 001</span>
+                            <span class="zone-badge">{{ zone.visites }} / {{ zone.total }}</span>
+                            <svg class="zone-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <polyline points="4,6 8,10 12,6"/>
+                            </svg>
                         </div>
-                        <span class="gu-status gu-status--active">Visité</span>
-                    </div>
-                    <div class="point-item">
-                        <div class="point-title">
-                            <div class="point-loc-icon loc-not-visited">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
-                                    <path
-                                            d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                                </svg>
+
+                        <div class="points-list">
+                            {% for sommet in zone.sommets %}
+                            <div class="point-item">
+                                <div class="point-title">
+                                    <div class="point-loc-icon 
+                                        {% if sommet.status == 'visite' %}loc-visited
+                                        {% elif sommet.status == 'en_cours' %}loc-in-progress
+                                        {% elif sommet.status == 'incident' %}loc-incident
+                                        {% else %}loc-not-visited{% endif %}">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                                        </svg>
+                                    </div>
+                                    <span>{{ sommet.latitude|floatformat:4 }}, {{ sommet.longitude|floatformat:4 }}</span>
+                                </div>
+
+                                <span class="gu-status 
+                                    {% if sommet.status == 'visite' %}gu-status--success
+                                    {% elif sommet.status == 'en_cours' %}gu-status--warning
+                                    {% elif sommet.status == 'incident' %}gu-status--danger
+                                    {% else %}gu-status--default{% endif %}">
+                                    {{ sommet.status }}
+                                </span>
                             </div>
-                            <span>Point 002</span>
+                            {% empty %}
+                            <p style="padding:8px; color:#aaa; font-size:12px;">
+                                <i class="fas fa-info-circle"></i> Aucun sommet dans cette zone
+                            </p>
+                            {% endfor %}
                         </div>
-                        <span class="gu-status gu-status--inactive">Non Visité</span>
+
                     </div>
-                </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="padding:10px; color:#aaa;">Aucune zone trouvée.</p>
+                {% endif %}
             </div>
 
-            <div class="zone-item">
-                <div class="zone-header" onclick="toggleZone(this)">
-                    <div class="zone-meta">
-                        <p class="zone-name">Zone B</p>
-                        <p class="zone-sub">Secteur Sud</p>
-                    </div>
-                    <span class="zone-badge">1 / 1</span>
-                    <svg class="zone-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
-                        <polyline points="4,6 8,10 12,6"/>
-                    </svg>
-                </div>
-                <div class="points-list">
-                    <div class="point-item">
-                        <div class="point-title">
-                            <div class="point-loc-icon loc-visited">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
-                                    <path
-                                            d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                                </svg>
-                            </div>
-                            <span>Point 001</span>
-                        </div>
-                        <span class="gu-status gu-status--active">Visité</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+        {% else %}
+            <h3>Tableau de bord</h3>
+            <p style="padding:10px; color:#aaa;">
+                <i class="fas fa-info-circle"></i> Aucune optimisation active.
+            </p>
+        {% endif %}
 
     </div>
 </div>
+{% endblock %}
 
-</div>
+{% block extra_js %}
+<script>
+    var zones   = {{ zones_json|safe }};
+    var sommets = {{ sommets_json|safe }};
+</script>
+<script src="{% static 'js/dashboard_map.js' %}"></script>
 {% endblock %}

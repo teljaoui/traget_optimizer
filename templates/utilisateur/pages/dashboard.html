@@ -63,7 +63,7 @@
                     {% if trajet %}
                     <p style="margin:0; font-size:13px;">
                         <i class="fas fa-road"></i> &nbsp; <strong>Distance totale : &nbsp;</strong>
-                        {{ trajet.distance_totale }} km
+                        {{ trajet.distance_totale|floatformat:2 }} km
                     </p>
                     {% endif %}
                 </div>
@@ -124,48 +124,62 @@
                 </div>
 
                 <!-- CAS 4 : Trajet existant → affichage normal -->
-                {% else %}
-                <h3>Sommets dans cette zone</h3>
-                <div class="zones-container">
-                    {% for ts in trajet.sommets.all %}
-                    <div class="zone-item" id="point-{{ ts.ordre }}">
-                        <div class="zone-header">
-                            <div class="point-loc-icon"
-                                 style="background:{% if forloop.first %}#2ecc71{% elif forloop.last %}#f59e0b{% else %}#e74c3c{% endif %};
-                                        color:#fff; border-radius:50%;
-                                        width:28px; height:28px;
-                                        display:flex; align-items:center; justify-content:center;
-                                        font-weight:bold; font-size:12px; flex-shrink:0;">
-                                {{ ts.ordre }}
-                            </div>
-                            <div class="zone-meta">
-                                <p class="zone-name">
-                                    {% if forloop.first %}
-                                        Point de départ
-                                    {% elif forloop.last %}
-                                        Retour au départ
-                                    {% else %}
-                                        Sommet {{ ts.ordre }}
-                                    {% endif %}
-                                </p>
-                                <p class="zone-sub">
-                                    {{ ts.sommet.latitude|floatformat:5 }},
-                                    {{ ts.sommet.longitude|floatformat:5 }}
-                                </p>
-                            </div>
-<span class="gu-status
-    {% if ts.status == 'visite' %}gu-status--success
-    {% elif ts.status == 'en_cours' %}gu-status--warning
-    {% elif ts.status == 'incident' %}gu-status--danger
-    {% else %}gu-status--default
-    {% endif %}
-">
-    {{ ts.status }}
-</span>                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
+<!-- CAS 4 : Trajet existant -->
+{% else %}
+<h3>Points du trajet</h3>
+<div class="zones-container" id="sommets-container">
+    {% for ts in trajet.sommets.all %}
+    <div class="zone-item" id="point-{{ ts.ordre }}">
+        <div class="zone-header">
+
+            <div class="point-loc-icon loc-visited"
+                 style="{% if ts.status == 'incident' %}color:#e74c3c;
+                        {% elif ts.status == 'visite' %}color:#2ecc71;
+                        {% elif ts.status == 'en_cours' %}color:#3b82f6;
+                        {% else %}color:#f59e0b;{% endif %}">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                </svg>
+            </div>
+
+            <div class="zone-meta" style="flex:1;">
+                <p class="zone-name">Sommet {{ ts.ordre }}</p>
+              <a href="https://www.google.com/maps?q={{ ts.sommet.latitude|stringformat:'.6f' }},{{ ts.sommet.longitude|stringformat:'.6f' }}" target="_blank" class="zone-sub">
+                    {{ ts.sommet.latitude|floatformat:5 }},
+                    {{ ts.sommet.longitude|floatformat:5 }}
+                </a>
+                {% if ts.status != 'en_attente' %}
+                <p style="margin:3px 0 0; font-size:11px; font-weight:500;
+                    {% if ts.status == 'visite' %}color:#166534;
+                    {% elif ts.status == 'incident' %}color:#b91c1c;
+                    {% elif ts.status == 'en_cours' %}color:#1e40af;
+                    {% endif %}">
+                    {% if ts.status == 'visite' %}Visité
+                    {% elif ts.status == 'incident' %}Incident
+                    {% elif ts.status == 'en_cours' %}En cours
+                    {% endif %}
+                </p>
                 {% endif %}
+            </div>
+
+            {% if ts.status == 'en_attente' or ts.status == 'en_cours' %}
+            <select class="statut-select"
+                    data-ordre="{{ ts.ordre }}"
+                    data-trajet="{{ trajet.id }}"
+                    style="font-size:12px; padding:4px 6px; border-radius:6px;
+                           border:1px solid #e2e8f0; background:#fff; cursor:pointer;">
+                <option value="en_attente" {% if ts.status == 'en_attente' %}selected{% endif %}>En attente</option>
+                <option value="en_cours"   {% if ts.status == 'en_cours'   %}selected{% endif %}>En cours</option>
+                <option value="visite">Visité</option>
+                <option value="incident">Incident</option>
+            </select>
+            {% endif %}
+
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
 
             </aside>
         </div>
@@ -175,12 +189,17 @@
 
 {% block extra_js %}
 <script>
-    var zoneData  = {{ zone_json|safe }};   
-    var sommets   = {{ sommets_json|safe }}; 
-    var trajetData = {{ trajet_json|safe }}; 
-
+    var zoneData   = {{ zone_json|safe }};
+    var sommets    = {{ sommets_json|safe }};
+    var trajetData = {{ trajet_json|safe }};
     var zoneId     = "{{ zone.id }}";
     var csrfToken  = "{{ csrf_token }}";
+
+    {% if trajet %}
+    var updateStatutUrl = "{% url 'update_statut_sommet' trajet_id=trajet.id ordre=0 %}";
+    {% else %}
+    var updateStatutUrl = null;
+    {% endif %}
 </script>
 <script src="{% static 'js/utilisateur_trajet_actif.js' %}"></script>
 {% endblock %}

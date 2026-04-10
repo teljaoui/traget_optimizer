@@ -17,9 +17,110 @@ from django.urls import reverse
 
 @admin_required
 def admin_dashboard(request):
-    return render(request, 'administrator/pages/dashboard.html')
 
+    optimisation = Optimisation.objects.filter(is_active=True).first()
 
+    zones_data = []
+    zones = []
+
+    # ─────────────────────────────────────────────
+    # ZONES UNIQUEMENT SI OPTIMISATION ACTIVE
+    # ─────────────────────────────────────────────
+    if optimisation:
+
+        zones = optimisation.zones.all().prefetch_related(
+            'points',
+            'affectations__user'
+        )
+
+        for zone in zones:
+
+            trajet = Trajet.objects.filter(zone=zone)\
+                .prefetch_related('sommets__sommet')\
+                .first()
+
+            status_map = {}
+
+            if trajet:
+                for ts in trajet.sommets.all():
+                    status_map[ts.sommet.id] = ts.status
+
+            points = [
+                {
+                    'lat': p.latitude,
+                    'lng': p.longitude,
+                    'ordre': p.ordre
+                }
+                for p in zone.points.all()
+            ]
+
+            points_poly = [
+                {'lat': p.latitude, 'lng': p.longitude}
+                for p in zone.points.all()
+            ]
+
+            tous_sommets = Sommet.objects.all()
+
+            sommets_dans_zone = [
+                {
+                    'id': s.id,
+                    'latitude': float(s.latitude),
+                    'longitude': float(s.longitude),
+                    'status': status_map.get(s.id, 'en_attente')
+                }
+                for s in tous_sommets
+                if point_in_polygon(s.latitude, s.longitude, points_poly)
+            ]
+
+            visites = sum(1 for s in sommets_dans_zone if s['status'] == 'visite')
+            total = len(sommets_dans_zone)
+
+            zones_data.append({
+                'id': zone.id,
+                'nom': zone.nom,
+                'points': points,
+                'sommets': sommets_dans_zone,
+                'visites': visites,
+                'total': total,
+            })
+
+    # ─────────────────────────────────────────────
+    # SOMMETS GLOBAUX (SEULEMENT SI OPTIMISATION)
+    # ─────────────────────────────────────────────
+    sommets_data = []
+
+    if optimisation:
+
+        tous_sommets_qs = Sommet.objects.all()
+
+        global_status_map = {}
+
+        for trajet in Trajet.objects.prefetch_related('sommets__sommet').all():
+            for ts in trajet.sommets.all():
+                global_status_map[ts.sommet.id] = ts.status
+
+        sommets_data = [
+            {
+                'id': s.id,
+                'latitude': float(s.latitude),
+                'longitude': float(s.longitude),
+                'status': global_status_map.get(s.id, 'en_attente')
+            }
+            for s in tous_sommets_qs
+        ]
+
+    # ─────────────────────────────────────────────
+    # RENDER
+    # ─────────────────────────────────────────────
+    return render(request, 'administrator/pages/dashboard.html', {
+        'optimisation': optimisation,
+        'zones': zones,
+        'zones_data': zones_data,
+        'zones_json': json.dumps(zones_data),
+
+        # 🚨 vide si pas d'optimisation
+        'sommets_json': json.dumps(sommets_data),
+    })
 @admin_required
 def optimisation_index(request):
     optimisations = Optimisation.objects.all().order_by('-created_at')
@@ -87,7 +188,7 @@ def optimisation_delete(request, id):
 @admin_required
 def optimisation_zone(request, id):
     optimisation = get_object_or_404(Optimisation, id=id)
-    zones = optimisation.zones.all().prefetch_related('points', 'affectations__user')  # ✅ ajouter affectations__user
+    zones = optimisation.zones.all().prefetch_related('points', 'affectations__user') 
 
     zones_data = []
     for zone in zones:

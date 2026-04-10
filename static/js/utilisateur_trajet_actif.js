@@ -265,3 +265,107 @@ function mettreAJourListeSommets(sommets) {
         container.appendChild(div);
     });
 }
+
+
+document.addEventListener('change', function(e) {
+    if (!e.target.classList.contains('statut-select')) return;
+
+    const select   = e.target;
+    const ordre    = select.dataset.ordre;
+    const nouveau  = select.value;
+    const label    = select.options[select.selectedIndex].text;
+
+    // Confirmation simple
+    if (!confirm(`Confirmer : passer le point ${ordre} en "${label}" ?`)) {
+        select.value = 'en_attente';
+        return;
+    }
+
+    const url = updateStatutUrl.replace('/0/', `/${ordre}/`);
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken,
+        },
+        body: JSON.stringify({ status: nouveau }),
+    })
+    .then(function(r) {
+        if (!r.ok) {
+            return r.json().then(function(err) {
+                throw new Error(err.error || 'Erreur HTTP ' + r.status);
+            });
+        }
+        return r.json();
+    })
+    .then(function(data) {
+        if (data.success) {
+            // Masque le point avec animation et le retire du DOM
+            var item = document.getElementById('point-' + ordre);
+            if (item) {
+                item.style.transition = 'opacity 0.4s';
+                item.style.opacity    = '0';
+                setTimeout(function() {
+                    item.remove();
+                    // Vérifie s'il reste des points
+                    var restants = document.querySelectorAll('#sommets-container .zone-item');
+                    if (restants.length === 0) {
+                        document.getElementById('tous-traites').style.display = 'block';
+                    }
+                }, 400);
+            }
+        }
+    })
+    .catch(function(err) {
+        alert('Erreur : ' + err.message);
+        select.value = 'en_attente';
+    });
+});
+
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    if (!navigator.geolocation) {
+        alert("La géolocalisation n'est pas supportée par votre navigateur");
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+        function (position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+
+            console.log("Ma position :", lat, lng);
+
+            // 🔵 Exemple 1 : afficher un marker si tu utilises Leaflet
+            if (typeof map !== "undefined") {
+                L.marker([lat, lng])
+                    .addTo(map)
+                    .bindPopup("📍 Ma position actuelle")
+                    .openPopup();
+
+                map.setView([lat, lng], 14);
+            }
+
+            // 🔵 Exemple 2 : si tu veux juste afficher dans la page
+            const info = document.createElement("div");
+            info.style.padding = "10px";
+            info.style.background = "#ecfdf5";
+            info.style.marginTop = "10px";
+            info.style.borderRadius = "8px";
+            info.innerHTML = `📍 Position: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+
+            document.querySelector(".right-content").prepend(info);
+        },
+        function (error) {
+            console.error(error);
+            alert("Impossible de récupérer votre position");
+        },
+        {
+            enableHighAccuracy: true,
+            timeout: 10000
+        }
+    );
+
+});
