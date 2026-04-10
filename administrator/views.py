@@ -10,7 +10,7 @@ import json
 from accounts.decorators import admin_required
 from accounts.models import User
 from .models import Optimisation, Zone, Sommet, PointZone, Affectation, Algorithme, Trajet
-from .utils import point_in_polygon, executer_algorithme
+from services.utils import point_in_polygon, executer_algorithme
 from django.urls import reverse
 
 

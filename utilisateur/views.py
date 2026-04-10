@@ -9,8 +9,8 @@ from administrator.models import (
     Optimisation, Zone, Sommet, Affectation,
     Algorithme, Trajet, TrajetSommet, PointZone
 )
-from administrator.utils import point_in_polygon, executer_algorithme
 
+from services.utils import point_in_polygon, executer_algorithme
 
 @user_required
 def user_dashboard(request):
