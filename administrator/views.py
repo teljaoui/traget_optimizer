@@ -9,9 +9,9 @@ import json
 
 from accounts.decorators import admin_required
 from accounts.models import User
-from .models import Optimisation, Zone, Sommet, PointZone, Affectation, Algorithme
+from .models import Optimisation, Zone, Sommet, PointZone, Affectation, Algorithme, Trajet
 from .utils import point_in_polygon, executer_algorithme
-
+from django.urls import reverse
 
 
 
@@ -190,16 +190,45 @@ def zone_create(request, optimisation_id):
 
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+        
+@admin_required
+@require_POST
+def zone_delete(request, zone_id):
+    """
+    Supprime une zone et redirige vers la liste des zones de l'optimisation parente.
+    """
+    zone = get_object_or_404(Zone, id=zone_id)
     
+    # On stocke l'ID de l'optimisation avant la suppression
+    optimisation_id = zone.optimisation.id 
 
+    try:
+        with transaction.atomic():
+            zone.delete()
+        
+        # Message de succès (optionnel si vous utilisez les messages Django)
+        messages.success(request, "La zone a été supprimée avec succès.")
+        
+        # Redirection vers 'zone_optimisation' avec l'ID récupéré
+        return redirect(reverse('zone_optimisation', kwargs={'id': optimisation_id}))
 
+    except Exception as e:
+        # En cas d'erreur, on peut renvoyer vers la même page avec un message d'erreur
+        messages.error(request, f"Erreur lors de la suppression : {str(e)}")
+        return redirect(reverse('zone_optimisation', kwargs={'id': optimisation_id}))
+    
 @admin_required
 def optimisation_zone_detail(request, id):
     zone = get_object_or_404(Zone, id=id)
 
+    # ============================================================
+    # 1. Données de la zone
+    # ============================================================
+    points_zone = list(zone.points.all().order_by('ordre'))
+
     points = [
-        {'lat': p.latitude, 'lng': p.longitude, 'ordre': p.ordre}
-        for p in zone.points.all().order_by('ordre')
+        {'lat': p.latitude, 'lng': p.longitude}
+        for p in points_zone
     ]
 
     zone_data = {
@@ -208,29 +237,94 @@ def optimisation_zone_detail(request, id):
         'points': points
     }
 
-    algorithmes = Algorithme.objects.all()
+    # ============================================================
+    # 2. Tous les sommets (JS)
+    # ============================================================
+    tous_sommets = list(Sommet.objects.all())
 
-    tous_sommets = Sommet.objects.all()
-    sommets_dans_zone = []
+    # Sommets dans la zone (pour affichage HTML)
+    points_poly = [{'lat': p.latitude, 'lng': p.longitude} for p in points_zone]
 
-    if len(points) >= 3:
-        for sommet in tous_sommets:
-            if point_in_polygon(sommet.latitude, sommet.longitude, points):
-                sommets_dans_zone.append(sommet)
+    sommets_dans_zone = [
+        s for s in tous_sommets
+        if point_in_polygon(s.latitude, s.longitude, points_poly)
+    ]
 
-    sommets_data = list(Sommet.objects.values('id', 'latitude', 'longitude'))
-    affectations = zone.affectations.select_related('user').all()
+    # ============================================================
+    # 3. Trajet + STATUS
+    # ============================================================
+    trajet = Trajet.objects.filter(zone=zone)\
+        .prefetch_related('sommets__sommet')\
+        .first()
 
+    # Mapping : sommet_id → status
+    status_map = {}
+
+    if trajet:
+        for ts in trajet.sommets.all():
+            status_map[ts.sommet.id] = ts.status
+
+    # ============================================================
+    # 4. Sommets JSON (pour JS)
+    # ============================================================
+    sommets_data = [
+        {
+            'id': s.id,
+            'latitude': float(s.latitude),
+            'longitude': float(s.longitude),
+            'status': status_map.get(s.id, 'en_attente')  # ✅ AJOUT
+        }
+        for s in tous_sommets
+    ]
+
+    # ============================================================
+    # 5. Trajet JSON (pour JS)
+    # ============================================================
+    trajet_data = None
+
+    if trajet:
+        trajet_data = {
+            'id': trajet.id,
+            'distance_totale': float(trajet.distance_totale),
+            'sommets': [
+                {
+                    'id': ts.sommet.id,
+                    'ordre': ts.ordre,
+                    'latitude': float(ts.sommet.latitude),
+                    'longitude': float(ts.sommet.longitude),
+                    'status': ts.status  # ✅ AJOUT
+                }
+                for ts in trajet.sommets.all().order_by('ordre')
+            ]
+        }
+
+    # ============================================================
+    # 6. Sommets pour HTML (liste à droite)
+    # ============================================================
+    sommets_zone = [
+        {
+            'obj': s,
+            'status': status_map.get(s.id, 'en_attente')
+        }
+        for s in sommets_dans_zone
+    ]
+
+    # ============================================================
+    # 7. Render
+    # ============================================================
     return render(request, 'administrator/pages/optimisation/zone.html', {
         'zone': zone,
         'optimisation': zone.optimisation,
+
         'zone_json': json.dumps(zone_data),
         'sommets_json': json.dumps(sommets_data),
-        'sommets_zone': sommets_dans_zone,
-        'affectations': affectations,
+        'trajet_json': json.dumps(trajet_data) if trajet_data else 'null',
 
-        # 🔥 important
-        'algorithmes': algorithmes,
+        'trajet': trajet,
+        'sommets_zone': sommets_zone,
+
+        'affectations': zone.affectations.select_related('user').all(),
+        'algorithmes': Algorithme.objects.all(),
     })
 
 @admin_required

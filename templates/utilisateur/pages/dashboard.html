@@ -1,64 +1,186 @@
 {% extends 'utilisateur/layout/base.html' %}
 {% load static %}
 
-{% block title %}Mon Trajet Actif — {{ user.first_name }}{% endblock %}
+{% block title %}Mon Trajet — {{ request.session.user_name }}{% endblock %}
 
 {% block content %}
-   <header class="topbar">
-        <h1 class="topbar-title">MON TRAJET ACTIF</h1>
-        <div class="user-info">
+<header class="topbar">
+    <h1 class="topbar-title">Mon Trajet Actif</h1>
+    <div class="user-info">
         <div class="user-avatar">{{ request.session.user_name|slice:":1" }}</div>
-            <span class="user-name">
-
-                {{ request.session.user_name }}
-            </span>
-            <a href="{% url 'logout' %}" class="logout-btn">
-                <i class="fas fa-sign-out-alt"></i>
-            </a>
-        </div>
-    </header>
+        <span class="user-name">{{ request.session.user_name }}</span>
+        <a href="{% url 'logout' %}" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i>
+        </a>
+    </div>
+</header>
 
 <div class="main-wrapper">
- 
     <main class="main-content">
         <div class="dashboard-container">
+
+            <!-- CARTE -->
             <div class="left-content">
+                <div class="header-map">
+                    <div class="header-info">
+                        <h3>
+                            {% if zone %}
+                                {{ zone.nom }}
+                            {% else %}
+                                Aucune zone affectée
+                            {% endif %}
+                        </h3>
+                        <p style="color:#888; font-size:13px; margin-bottom:15px">
+                            {% if trajet %}
+                                Algorithme : <strong>{{ zone.algorithme.nom|default:"N/A" }}</strong>
+                                &nbsp;|&nbsp;
+                                Distance : <strong>{{ trajet.distance_totale }} km</strong>
+                            {% elif optimisation %}
+                                Optimisation active : <strong>{{ optimisation.nom }}</strong>
+                            {% else %}
+                                Aucune optimisation active
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
                 <div id="map"></div>
             </div>
 
+            <!-- PANNEAU DROITE -->
             <aside class="right-content">
-                <h3>POINTS À SUIVRE (TOURNEE A-45)</h3>
-                <p class="subtitle">Suivez votre itinéraire en temps réel</p>
 
-                <div class="zones-container">
-                    <div class="zone-item active">
-                        <div class="zone-header" onclick="toggleZone(this)">
-                            <div class="zone-icon icon-a">1</div>
-                            <div class="zone-meta">
-                                <p class="zone-name">POINT 1 - DÉPÔT CASABLANCA</p>
-                                <p class="zone-sub">12h00 - Adresse Casablanca - 311</p>
-                            </div>
-                            <span class="zone-badge">COMPLÉTÉ</span>
-                        </div>
+                <!-- Infos agent -->
+                <div style="margin-bottom:16px; padding:12px; background:#1e293b; color:#fff; border-radius:8px; border:1px solid #eee;">
+                    <p style="margin:0 0 4px; font-size:13px;">
+                        <i class="fas fa-user"></i> &nbsp; <strong>Agent : &nbsp;</strong>
+                        {{ request.session.user_name }}
+                    </p>
+                    {% if zone %}
+                    <p style="margin:0 0 4px; font-size:13px;">
+                        <i class="fas fa-map"></i> &nbsp; <strong>Zone : &nbsp;</strong> {{ zone.nom }}
+                    </p>
+                    {% endif %}
+                    {% if trajet %}
+                    <p style="margin:0; font-size:13px;">
+                        <i class="fas fa-road"></i> &nbsp; <strong>Distance totale : &nbsp;</strong>
+                        {{ trajet.distance_totale }} km
+                    </p>
+                    {% endif %}
+                </div>
+
+                <!-- CAS 1 : Pas d'optimisation active -->
+                {% if not optimisation %}
+                <div style="padding:20px; text-align:center; color:#aaa;">
+                    <p>Aucune optimisation active.</p>
+                    <p style="font-size:12px;">Contactez votre administrateur.</p>
+                </div>
+
+                <!-- CAS 2 : Optimisation active mais pas de zone affectée -->
+                {% elif not zone %}
+                <div style="padding:20px; text-align:center; color:#aaa;">
+                    <i class="fas fa-map-marked-alt" style="font-size:32px; margin-bottom:10px; display:block; color:#e74c3c;"></i>
+                    <p>Aucune zone affectée à votre compte.</p>
+                    <p style="font-size:12px;">Contactez votre administrateur.</p>
+                </div>
+
+                <!-- CAS 3 : Zone affectée mais pas encore de trajet → l'agent génère -->
+                {% elif not trajet %}
+                <div style="margin-bottom:16px; padding:16px; border:1px solid #e2e8f0; border-radius:10px; background:#ffffff;">
+                    <p style="margin:0 0 10px; font-size:13px; color:#555;">
+                        <i class="fas fa-info-circle" style="color:#f59e0b;"></i>
+                        Votre zone <strong>{{ zone.nom }}</strong> n'a pas encore de trajet.
+                        Choisissez un algorithme pour générer votre itinéraire.
+                    </p>
+
+                    <div class="form-group" style="margin-bottom:10px;">
+                        <label>Algorithme</label>
+                        <select id="agent-algorithme" class="form-control">
+                            <option value="">-- Choisir un algorithme --</option>
+                            {% for algo in algorithmes %}
+                            <option value="{{ algo.id }}">{{ algo.nom }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
 
-                    <div class="zone-item active">
-                        <div class="zone-header" onclick="toggleZone(this)">
-                            <div class="zone-icon icon-a">2</div>
-                            <div class="zone-meta">
-                                <p class="zone-name">POINT 2 - CLIENT ACHRAF</p>
-                                <p class="zone-sub">En cours - Livraison Colis</p>
-                            </div>
-                            <span class="zone-badge" style="background: #dbeafe; color: #1d4ed8;">EN COURS</span>
-                        </div>
-                        <div class="points-list" style="display: block; padding: 15px;">
-                            <button class="btn-primary" style="margin-bottom: 10px;">VALIDER LE POINT</button>
-                            <button class="btn-ghost" style="width: 100%; border: 1px solid #cbd5e1;">SIGNALER PROBLÈME</button>
-                        </div>
+                    <!-- Résultat après génération -->
+                    <div id="agent-result-info" style="display:none; margin-bottom:10px; padding:10px; background:#ecfdf5; border:1px solid #6ee7b7; border-radius:8px; font-size:13px; color:#065f46;"></div>
+
+                    <div style="display:flex; justify-content:flex-end; gap:10px;">
+                        <button class="button" id="btn-generer-trajet">
+                            <i class="fas fa-route"></i> Générer mon trajet
+                        </button>
+                        <button class="button-reset" id="btn-annuler-trajet">
+                            Annuler
+                        </button>
                     </div>
                 </div>
+
+                <h3>Sommets dans cette zone</h3>
+                <div class="zones-container" id="sommets-container">
+                    <div style="padding:20px; text-align:center; color:#aaa;">
+                        <i class="fas fa-clock" style="font-size:32px; margin-bottom:10px; display:block; color:#f59e0b;"></i>
+                        <p>Générez votre trajet pour voir les sommets.</p>
+                    </div>
+                </div>
+
+                <!-- CAS 4 : Trajet existant → affichage normal -->
+                {% else %}
+                <h3>Sommets dans cette zone</h3>
+                <div class="zones-container">
+                    {% for ts in trajet.sommets.all %}
+                    <div class="zone-item" id="point-{{ ts.ordre }}">
+                        <div class="zone-header">
+                            <div class="point-loc-icon"
+                                 style="background:{% if forloop.first %}#2ecc71{% elif forloop.last %}#f59e0b{% else %}#e74c3c{% endif %};
+                                        color:#fff; border-radius:50%;
+                                        width:28px; height:28px;
+                                        display:flex; align-items:center; justify-content:center;
+                                        font-weight:bold; font-size:12px; flex-shrink:0;">
+                                {{ ts.ordre }}
+                            </div>
+                            <div class="zone-meta">
+                                <p class="zone-name">
+                                    {% if forloop.first %}
+                                        Point de départ
+                                    {% elif forloop.last %}
+                                        Retour au départ
+                                    {% else %}
+                                        Sommet {{ ts.ordre }}
+                                    {% endif %}
+                                </p>
+                                <p class="zone-sub">
+                                    {{ ts.sommet.latitude|floatformat:5 }},
+                                    {{ ts.sommet.longitude|floatformat:5 }}
+                                </p>
+                            </div>
+<span class="gu-status
+    {% if ts.status == 'visite' %}gu-status--success
+    {% elif ts.status == 'en_cours' %}gu-status--warning
+    {% elif ts.status == 'incident' %}gu-status--danger
+    {% else %}gu-status--default
+    {% endif %}
+">
+    {{ ts.status }}
+</span>                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
             </aside>
         </div>
     </main>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    var zoneData  = {{ zone_json|safe }};   
+    var sommets   = {{ sommets_json|safe }}; 
+    var trajetData = {{ trajet_json|safe }}; 
+
+    var zoneId     = "{{ zone.id }}";
+    var csrfToken  = "{{ csrf_token }}";
+</script>
+<script src="{% static 'js/utilisateur_trajet_actif.js' %}"></script>
 {% endblock %}

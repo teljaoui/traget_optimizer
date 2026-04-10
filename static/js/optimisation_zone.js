@@ -159,4 +159,3 @@ document.getElementById('btn-save-zone').addEventListener('click', function() {
 function toggleZone(el) {
     el.parentElement.classList.toggle("active");
 }
-

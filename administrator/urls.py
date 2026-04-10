@@ -20,9 +20,11 @@ urlpatterns = [
     # ZONE
     path('optimisation/zone/index/<int:id>/', views.optimisation_zone, name='zone_optimisation'),
     path('optimisation/<int:optimisation_id>/zones/create/', views.zone_create, name='zone_create'),
+    path('zone/delete/<int:zone_id>/', views.zone_delete, name='zone_delete'),
 
     path('optimisation/zone/detail/<int:id>/', views.optimisation_zone_detail, name='zone_detail_optimisation'),
 
     path('zone/<int:id>/tsp/', views.zone_tsp_api, name='zone_tsp_api'),
+
 
 ]

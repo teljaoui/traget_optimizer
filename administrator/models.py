@@ -86,17 +86,32 @@ class Trajet(models.Model):
 
 
 class TrajetSommet(models.Model):
+
+    class StatusChoices(models.TextChoices):
+        EN_ATTENTE = 'en_attente', 'En attente'
+        EN_COURS   = 'en_cours', 'En cours'
+        VISITE     = 'visite', 'Visité'
+        INCIDENT   = 'incident', 'Incident'
+
     trajet = models.ForeignKey(
-                 Trajet,
-                 on_delete=models.CASCADE,
-                 related_name='sommets'
-             )
+        Trajet,
+        on_delete=models.CASCADE,
+        related_name='sommets'
+    )
+
     sommet = models.ForeignKey(
-                 Sommet,
-                 on_delete=models.CASCADE,
-                 related_name='trajet_sommets'
-             )
-    ordre  = models.PositiveIntegerField()
+        Sommet,
+        on_delete=models.CASCADE,
+        related_name='trajet_sommets'
+    )
+
+    ordre = models.PositiveIntegerField()
+
+    status = models.CharField(
+        max_length=20,
+        choices=StatusChoices.choices,
+        default=StatusChoices.EN_ATTENTE
+    )
 
     class Meta:
         db_table = 'trajet_sommets'

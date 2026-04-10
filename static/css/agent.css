@@ -40,22 +40,11 @@ body {
 
 
 #map {
-  top: 0;
-  bottom: 0;
   width: 100%;
-  height: 100% !important;
+  height: 90% !important;
 }
 
-.right-content {
-  width: 380px;
-  height: 100%;
-  background: white;
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-  border: 1px solid #e2e8f0;
-}
+
 
 .zones-container {
   flex: 1;

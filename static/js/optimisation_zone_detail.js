@@ -1,37 +1,37 @@
 document.addEventListener('DOMContentLoaded', function () {
 
-    // Dessiner le polygone de la zone
-    var latlngs = zone.points.map(function (p) { return [p.lat, p.lng]; });
+    // ÉTAPE 1 : Dessiner le polygone + sommets (identique au user)
+    if (zoneData && zoneData.points && zoneData.points.length > 0) {
 
-    if (latlngs.length > 0) {
+        var latlngs = zoneData.points.map(function (p) { return [p.lat, p.lng]; });
+
         var polygon = L.polygon(latlngs, {
             color: 'black',
             fillColor: 'transparent',
-            fillOpacity: 0.3
+            fillOpacity: 0.15
         }).addTo(window.map);
 
         window.map.fitBounds(polygon.getBounds());
-        polygon.bindPopup(zone.nom).openPopup();
+        polygon.bindPopup(zoneData.nom).openPopup();
+
+        // Filtrage côté JS comme le user
+        sommets.forEach(function (s) {
+            if (!pointInPolygon(s.latitude, s.longitude, zoneData.points)) return;
+            L.marker([s.latitude, s.longitude])
+                .addTo(window.map)
+                .bindPopup('Sommet #' + s.id + '<br>' + s.latitude.toFixed(5) + ', ' + s.longitude.toFixed(5));
+        });
     }
 
-    // Afficher les sommets dans la zone
-    sommets.forEach(function (s) {
-        if (!pointInPolygon(s.latitude, s.longitude, zone.points)) return;
-
-        L.marker([s.latitude, s.longitude])
-            .addTo(window.map)
-            .bindPopup('Sommet #' + s.id + '<br>' + s.latitude.toFixed(5) + ', ' + s.longitude.toFixed(5));
-    });
-
-    // Réinitialiser le chemin quand on change d'algorithme
-    document.getElementById('zone-algorithme').addEventListener('change', function () {
-        clearChemin();
-    });
+    // ÉTAPE 2 : Trajet existant → tracer le chemin directement (identique au user)
+    if (trajetData && trajetData.sommets && trajetData.sommets.length > 0) {
+        dessinerChemin(trajetData.sommets, null);
+    }
 
 });
 
 // ============================================================
-// Ray-Casting
+// Ray-Casting — identique au user
 // ============================================================
 function pointInPolygon(lat, lng, points) {
     var n = points.length, inside = false;
@@ -46,39 +46,26 @@ function pointInPolygon(lat, lng, points) {
     return inside;
 }
 
-// ============================================================
 // État global
-// ============================================================
 var cheminLayers = [];
 var cheminMarkers = [];
 
-// ============================================================
-// Helpers
-// ============================================================
-function makeNumIcon(index, isStart) {
+// Icône numérotée — identique au user
+function makeNumIcon(ordre, isStart, isEnd) {
+    var bg = isStart ? '#2ecc71' : isEnd ? '#f59e0b' : '#e74c3c';
     return L.divIcon({
         className: '',
-        html: '<div style="background:' + (isStart ? '#2ecc71' : '#e74c3c') +
-            ';color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:bold;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.4);">' +
-            (index + 1) + '</div>',
+        html: '<div style="background:' + bg +
+            ';color:#fff;border-radius:50%;width:26px;height:26px;' +
+            'display:flex;align-items:center;justify-content:center;' +
+            'font-size:11px;font-weight:bold;border:2px solid #fff;' +
+            'box-shadow:0 2px 6px rgba(0,0,0,0.4);">' + ordre + '</div>',
         iconSize: [26, 26],
         iconAnchor: [13, 13]
     });
 }
 
-function clearChemin() {
-    cheminLayers.forEach(function (l) { window.map.removeLayer(l); });
-    cheminLayers = [];
-    cheminMarkers.forEach(function (m) { window.map.removeLayer(m); });
-    cheminMarkers = [];
-
-    var info = document.getElementById('algo-result-info');
-    if (info) { info.style.display = 'none'; info.innerHTML = ''; }
-}
-
-// ============================================================
-// OSRM — vraie route entre 2 points
-// ============================================================
+// OSRM — identique au user
 function getRoute(from, to) {
     var url = 'https://router.project-osrm.org/route/v1/driving/' +
         from.longitude + ',' + from.latitude + ';' +
@@ -94,15 +81,17 @@ function getRoute(from, to) {
                 });
             }
             return [[from.latitude, from.longitude], [to.latitude, to.longitude]];
+        })
+        .catch(function () {
+            return [[from.latitude, from.longitude], [to.latitude, to.longitude]];
         });
 }
 
-// ============================================================
-// Dessiner le chemin via OSRM
-// ============================================================
+// Dessiner le chemin — identique au user
 function dessinerChemin(chemin, btn) {
     var promise = Promise.resolve();
     var allLatLngs = [];
+    var totalSommets = chemin.length;
 
     for (var i = 0; i < chemin.length - 1; i++) {
         (function (idx) {
@@ -123,10 +112,15 @@ function dessinerChemin(chemin, btn) {
 
     promise.then(function () {
         chemin.forEach(function (s, index) {
-            if (index === chemin.length - 1) return;
-            var m = L.marker([s.latitude, s.longitude], { icon: makeNumIcon(index, index === 0) })
+            var isStart = s.ordre === 1 || index === 0;
+            var isEnd = s.ordre === totalSommets || index === chemin.length - 1;
+            var label = isStart ? ' Départ' : isEnd ? 'Retour au départ' : 'Étape ' + s.ordre;
+
+            var m = L.marker([s.latitude, s.longitude], {
+                icon: makeNumIcon(s.ordre, isStart, isEnd)
+            })
                 .addTo(window.map)
-                .bindPopup('<b>Étape ' + (index + 1) + '</b><br>Sommet #' + s.id);
+                .bindPopup('<b>' + label + '</b><br>Sommet #' + s.id);
             cheminMarkers.push(m);
         });
 
@@ -134,60 +128,9 @@ function dessinerChemin(chemin, btn) {
             window.map.fitBounds(L.latLngBounds(allLatLngs), { padding: [30, 30] });
         }
 
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-route"></i> Tester';
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-route"></i> Générer';
+        }
     });
 }
-
-// ============================================================
-// Bouton Tester
-// ============================================================
-document.getElementById('btn-test-zone').addEventListener('click', function () {
-    var algoId = document.getElementById('zone-algorithme').value;
-
-    if (!algoId) {
-        alert('Veuillez choisir un algorithme.');
-        return;
-    }
-
-    var btn = this;
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Calcul...';
-
-    clearChemin();
-
-    fetch('/zone/' + zone.id + '/tsp/?algo_id=' + algoId, {
-        method: 'GET',
-        headers: { 'X-CSRFToken': csrfToken }
-    })
-        .then(function (res) { return res.json(); })
-        .then(function (data) {
-            if (data.error) {
-                alert('Erreur : ' + data.error);
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-route"></i> Tester';
-                return;
-            }
-
-            var info = document.getElementById('algo-result-info');
-            info.style.display = 'block';
-            info.innerHTML =
-                '<i class="fas fa-check-circle"></i> <strong>' + data.algorithme + '</strong><br>' +
-                '📍 ' + data.nb_sommets + ' sommets &nbsp;|&nbsp; 📏 Distance : ' + data.distance_totale + ' km';
-            dessinerChemin(data.chemin, btn);
-        })
-        .catch(function (err) {
-            console.error(err);
-            alert('Erreur réseau.');
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-route"></i> Tester';
-        });
-});
-
-// ============================================================
-// Bouton Annuler
-// ============================================================
-document.getElementById('btn-cancel-zone').addEventListener('click', function () {
-    clearChemin();
-    document.getElementById('zone-algorithme').value = '';
-});

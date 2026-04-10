@@ -96,8 +96,7 @@
                                 {% endif %}
                                 {% endwith %}
                             </p>
-
-                            <p class="zone-sub">{{ zone.algorithme|default:"—" }}</p>
+                            <p class="zone-sub">{{ zone.algorithme.nom|default:"—" }}</p>
                         </div>
                     </a>
 
