@@ -23,9 +23,6 @@ def admin_dashboard(request):
     zones_data = []
     zones = []
 
-    # ─────────────────────────────────────────────
-    # ZONES UNIQUEMENT SI OPTIMISATION ACTIVE
-    # ─────────────────────────────────────────────
     if optimisation:
 
         zones = optimisation.zones.all().prefetch_related(
@@ -84,9 +81,6 @@ def admin_dashboard(request):
                 'total': total,
             })
 
-    # ─────────────────────────────────────────────
-    # SOMMETS GLOBAUX (SEULEMENT SI OPTIMISATION)
-    # ─────────────────────────────────────────────
     sommets_data = []
 
     if optimisation:
@@ -109,16 +103,13 @@ def admin_dashboard(request):
             for s in tous_sommets_qs
         ]
 
-    # ─────────────────────────────────────────────
-    # RENDER
-    # ─────────────────────────────────────────────
+
     return render(request, 'administrator/pages/dashboard.html', {
         'optimisation': optimisation,
         'zones': zones,
         'zones_data': zones_data,
         'zones_json': json.dumps(zones_data),
 
-        # 🚨 vide si pas d'optimisation
         'sommets_json': json.dumps(sommets_data),
     })
 @admin_required
@@ -246,7 +237,7 @@ def zone_tsp_api(request, id):
     'distance_totale': resultat['distance_totale'],
     'nb_sommets':      resultat['nb_sommets'],
     'algorithme':      algorithme.nom,
-    'unite':           'km',  # ← ajouter
+    'unite':           'km',  
     })
 
 

@@ -19,7 +19,6 @@
     <main class="main-content">
         <div class="dashboard-container">
 
-            <!-- CARTE -->
             <div class="left-content">
                 <div class="header-map">
                     <div class="header-info">
@@ -46,10 +45,8 @@
                 <div id="map"></div>
             </div>
 
-            <!-- PANNEAU DROITE -->
             <aside class="right-content">
 
-                <!-- Infos agent -->
                 <div style="margin-bottom:16px; padding:12px; background:#1e293b; color:#fff; border-radius:8px; border:1px solid #eee;">
                     <p style="margin:0 0 4px; font-size:13px;">
                         <i class="fas fa-user"></i> &nbsp; <strong>Agent : &nbsp;</strong>
@@ -68,14 +65,12 @@
                     {% endif %}
                 </div>
 
-                <!-- CAS 1 : Pas d'optimisation active -->
                 {% if not optimisation %}
                 <div style="padding:20px; text-align:center; color:#aaa;">
                     <p>Aucune optimisation active.</p>
                     <p style="font-size:12px;">Contactez votre administrateur.</p>
                 </div>
 
-                <!-- CAS 2 : Optimisation active mais pas de zone affectée -->
                 {% elif not zone %}
                 <div style="padding:20px; text-align:center; color:#aaa;">
                     <i class="fas fa-map-marked-alt" style="font-size:32px; margin-bottom:10px; display:block; color:#e74c3c;"></i>
@@ -83,48 +78,84 @@
                     <p style="font-size:12px;">Contactez votre administrateur.</p>
                 </div>
 
-                <!-- CAS 3 : Zone affectée mais pas encore de trajet → l'agent génère -->
-                {% elif not trajet %}
-                <div style="margin-bottom:16px; padding:16px; border:1px solid #e2e8f0; border-radius:10px; background:#ffffff;">
-                    <p style="margin:0 0 10px; font-size:13px; color:#555;">
-                        <i class="fas fa-info-circle" style="color:#f59e0b;"></i>
-                        Votre zone <strong>{{ zone.nom }}</strong> n'a pas encore de trajet.
-                        Choisissez un algorithme pour générer votre itinéraire.
-                    </p>
+              {% elif not trajet %}
+<div style="margin-bottom:16px; padding:16px; border:1px solid #e2e8f0; border-radius:10px; background:#ffffff;">
+    <p style="margin:0 0 12px; font-size:13px; color:#555;">
+        <i class="fas fa-info-circle" style="color:#f59e0b;"></i>
+        Votre zone <strong>{{ zone.nom }}</strong> n'a pas encore de trajet.
+    </p>
 
-                    <div class="form-group" style="margin-bottom:10px;">
-                        <label>Algorithme</label>
-                        <select id="agent-algorithme" class="form-control">
-                            <option value="">-- Choisir un algorithme --</option>
-                            {% for algo in algorithmes %}
-                            <option value="{{ algo.id }}">{{ algo.nom }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
+    <div class="form-group" style="margin-bottom:14px;">
+        <label style="font-size:12px; font-weight:600; color:#374151; display:block; margin-bottom:5px;">
+            Algorithme
+        </label>
+        <select id="agent-algorithme" class="form-control">
+            <option value="">-- Choisir un algorithme --</option>
+            {% for algo in algorithmes %}
+            <option value="{{ algo.id }}">{{ algo.nom }}</option>
+            {% endfor %}
+        </select>
+    </div>
 
-                    <!-- Résultat après génération -->
-                    <div id="agent-result-info" style="display:none; margin-bottom:10px; padding:10px; background:#ecfdf5; border:1px solid #6ee7b7; border-radius:8px; font-size:13px; color:#065f46;"></div>
+    <div style="margin-bottom:14px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:5px;">
+            <label style="font-size:12px; font-weight:600; color:#374151;">
+            </label>
+            <span style="font-size:11px; background:#dbeafe; color:#1d4ed8;
+                         padding:2px 8px; border-radius:4px;">optionnel</span>
+        </div>
 
-                    <div style="display:flex; justify-content:flex-end; gap:10px;">
-                        <button class="button" id="btn-generer-trajet">
-                            <i class="fas fa-route"></i> Générer mon trajet
-                        </button>
-                        <button class="button-reset" id="btn-annuler-trajet">
-                            Annuler
-                        </button>
-                    </div>
-                </div>
+        <div style="display:flex; align-items:center; gap:8px; padding:9px 12px;
+                    background:#fffbeb; border:1px solid #fcd34d; border-radius:8px;
+                    margin-bottom:8px;">
+            <p style="margin:0; font-size:12px; color:#78350f; line-height:1.4;">
+                Cliquez sur les sommets de la carte pour les sélectionner comme points prioritaires.
+                L'ordre de clic détermine la priorité.
+            </p>
+        </div>
 
-                <h3>Sommets dans cette zone</h3>
-                <div class="zones-container" id="sommets-container">
-                    <div style="padding:20px; text-align:center; color:#aaa;">
-                        <i class="fas fa-clock" style="font-size:32px; margin-bottom:10px; display:block; color:#f59e0b;"></i>
-                        <p>Générez votre trajet pour voir les sommets.</p>
-                    </div>
-                </div>
+        <div id="liste-points-importants"
+             style="border:1px solid #e2e8f0; border-radius:8px; min-height:48px;
+                    background:#fff; overflow:hidden;">
+        </div>
 
-                <!-- CAS 4 : Trajet existant → affichage normal -->
-<!-- CAS 4 : Trajet existant -->
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-top:6px;">
+            <p id="compteur-points"
+               style="font-size:11px; color:#6b7280; margin:0;">
+                Aucun point sélectionné — cliquez sur un sommet de la carte.
+            </p>
+            <button type="button"
+                    onclick="reinitialiserPointsImportants()"
+                    style="font-size:11px; padding:3px 9px; border:1px solid #e2e8f0;
+                           border-radius:5px; background:#f8fafc; cursor:pointer;
+                           color:#e74c3c;">
+                Effacer tout
+            </button>
+        </div>
+    </div>
+
+    <div id="agent-result-info"
+         style="display:none; margin-bottom:10px; padding:10px;
+                background:#ecfdf5; border:1px solid #6ee7b7;
+                border-radius:8px; font-size:13px; color:#065f46;"></div>
+
+    <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:4px;">
+        <button class="button" id="btn-generer-trajet">
+            <i class="fas fa-route"></i> Générer mon trajet
+        </button>
+        <button class="button-reset" id="btn-annuler-trajet">
+            Annuler
+        </button>
+    </div>
+</div>
+
+<h3>Sommets dans cette zone</h3>
+<div class="zones-container" id="sommets-container">
+    <div style="padding:20px; text-align:center; color:#aaa;">
+        <i class="fas fa-clock" style="font-size:32px; margin-bottom:10px; display:block; color:#f59e0b;"></i>
+        <p>Générez votre trajet pour voir les sommets.</p>
+    </div>
+</div>
 {% else %}
 <h3>Points du trajet</h3>
 <div class="zones-container" id="sommets-container">
